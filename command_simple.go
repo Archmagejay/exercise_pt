@@ -4,21 +4,32 @@ import (
 	"fmt"
 	"os"
 )
-
-func commandHelp(cfg *config, args ...string) error {
+func command(s *state, args ...string) error {
+	return nil
+}
+func commandHelp(s *state, args ...string) error {
 	fmt.Println("====================")
-	fmt.Println("Welcome to the Exercise Planner and Tracker!")
+	fmt.Println("Welcome to the Exercise Tracker!")
 	fmt.Println("Available commands:")
 	for _, cmd := range getCommands() {
-		fmt.Printf("%s: %s\n", cmd.name, cmd.description)
+		fmt.Printf("* %s: %s\n", cmd.name, cmd.description)
 	}
 	fmt.Println("====================")
 	return nil
 }
 
-func commandExit(cfg *config, args ...string) error {
-
-	fmt.Println("Closing planner... Goodbye!")
+func commandExit(s *state, args ...string) error {
+	fmt.Println("Closing tracker... Goodbye!")
+	err := s.cfg.SaveConfig()
+	if err != nil {
+		return err
+	}
 	os.Exit(0)
+	return nil
+}
+
+
+func commandClear(s *state, args ...string) error {
+
 	return nil
 }

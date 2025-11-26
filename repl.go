@@ -5,18 +5,30 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	//"time"
+
+	"github.com/archmagejay/excercise_pt/internal/config"
 )
 
-type config struct {
-
+type state struct {
+	cfg *config.Config
+	in  *bufio.Scanner
 }
 
-func startRepl(cfg *config) {
-	reader := bufio.NewScanner(os.Stdin)
+func startRepl(cfg *config.Config) {
+	s := state{
+		cfg: cfg,
+		in:  bufio.NewScanner(os.Stdin),
+	}
+
 	for {
+		// if programState.cfg.LastOpened.Before(time.Now().AddDate(0,0,-1)) {
+		// 	fmt.Print("It looks like you havn't entered data for today")
+		// }
 		fmt.Print("Exercise > ")
-		reader.Scan()
-		words := cleanInput(reader.Text())
+		s.in.Scan()
+		words := cleanInput(s.in.Text())
 		if len(words) == 0 {
 			continue
 		}
@@ -25,9 +37,13 @@ func startRepl(cfg *config) {
 		if len(words) > 1 {
 			args = words[1:]
 		}
+		alt, exists := altCommands()[commandName]
+		if exists {
+			commandName = alt
+		}
 		command, exists := getCommands()[commandName]
 		if exists {
-			if err := command.callback(cfg, args...); err != nil {
+			if err := command.callback(&s, args...); err != nil {
 				fmt.Printf("Command: %s errored: %s\n", command.name, fmt.Errorf("%w", err))
 			}
 			continue
@@ -42,25 +58,4 @@ func startRepl(cfg *config) {
 func cleanInput(text string) []string {
 	lower := strings.ToLower(text)
 	return strings.Fields(lower)
-}
-
-type cliCommand struct {
-	name 			string
-	description 	string
-	callback func(*config, ...string) error
-}
-
-func getCommands() map[string]cliCommand{
-	return map[string]cliCommand{
-		"help": {
-			name: "help",
-			description: "Displays a list of all commands",
-			callback: commandHelp,
-		},
-		"exit": {
-			name: "exit",
-			description: "Exits the program",
-			callback: commandExit,
-		},
-	}
 }

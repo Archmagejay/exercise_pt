@@ -1,7 +1,16 @@
 package main
 
-func main() {
-	cfg := &config{}
+import (
+	"log"
 
-	startRepl(cfg)
+	"github.com/archmagejay/excercise_pt/internal/config"
+)
+
+func main() {
+	cfg, err := config.Read()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	startRepl(&cfg)
 }

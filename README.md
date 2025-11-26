@@ -1,11 +1,11 @@
 # exercise_pt
-A personal exercise planner and metric tracker
+A personal exercise metric tracker
 
 
 ### TODO
 - [] Things to track and graph
     - [] Cardio - Daily
-    - [] Weight - Biweekly
+    - [] Weight - Weekly
     - [] BMI - Derived from weight and height
-    - [] Waist circumference - Biweekly
-    - [] Strength - Agg and Avg daily
+    - [] Waist circumference - Weekly
+    - [] Strength - Avg daily
