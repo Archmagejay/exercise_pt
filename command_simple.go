@@ -1,12 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
-func command(s *state, args ...string) error {
-	return nil
-}
+
 func commandHelp(s *state, args ...string) error {
 	fmt.Println("====================")
 	fmt.Println("Welcome to the Exercise Tracker!")
@@ -31,5 +30,5 @@ func commandExit(s *state, args ...string) error {
 
 func commandClear(s *state, args ...string) error {
 
-	return nil
+	return errors.New("not Implemented")
 }

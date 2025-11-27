@@ -1,6 +1,8 @@
 package main
 
+import "errors"
+
 func commandChange(s *state, args ...string) error {
 
-	return nil
+	return errors.New("not Implemented")
 }
