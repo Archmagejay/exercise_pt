@@ -20,8 +20,8 @@ func getCommands() map[string]cliCommand{
 			callback: commandExit,
 		},
 		"user": {
-			name: "user",
-			description: "Switch users",
+			name: "user [username]",
+			description: "Switch to a new user or describe the current user",
 			callback: commandUser,
 		},
 		"register": {

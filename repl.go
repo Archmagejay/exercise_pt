@@ -1,29 +1,21 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strings"
 
 	//"time"
 
-	"github.com/archmagejay/excercise_pt/internal/config"
 )
 
-type state struct {
-	cfg *config.Config
-	in  *bufio.Scanner
-}
 
-func startRepl(cfg *config.Config) {
-	s := state{
-		cfg: cfg,
-		in:  bufio.NewScanner(os.Stdin),
-	}
+
+func startRepl(s *state) {
+
 
 	for {
 		// if programState.cfg.LastOpened.Before(time.Now().AddDate(0,0,-1)) {
+		//
 		// 	fmt.Print("It looks like you havn't entered data for today")
 		// }
 		fmt.Print("Exercise > ")
@@ -43,7 +35,7 @@ func startRepl(cfg *config.Config) {
 		}
 		command, exists := getCommands()[commandName]
 		if exists {
-			if err := command.callback(&s, args...); err != nil {
+			if err := command.callback(s, args...); err != nil {
 				fmt.Printf("Command: %s errored: %s\n", command.name, fmt.Errorf("%w", err))
 			}
 			continue

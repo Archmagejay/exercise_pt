@@ -9,6 +9,7 @@ import (
 )
 const configDir = "Exercise_PT"
 const configFileName = "config.json"
+const db_usl = "postgres://postgres:postgres@localhost:5432/exercise_pt"
 
 type Config struct {
 	DBURL string `json:"db_url"`
@@ -43,7 +44,7 @@ func Read() (Config, error) {
 	defer file.Close()
 
 	decoder := json.NewDecoder(file)
-	cfg := Config{}
+	cfg := Config{DBURL: db_usl}
 	err = decoder.Decode(&cfg)
 	if err == io.EOF {
 		err := write(Config{})
