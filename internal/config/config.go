@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -9,7 +10,11 @@ import (
 )
 const configDir = "Exercise_PT"
 const configFileName = "config.json"
-const db_usl = "postgres://postgres:postgres@localhost:5432/exercise_pt"
+const db_url = "postgres://postgres:postgres@localhost:5432/exercise_pt"
+
+var ErrMissingUser = errors.New("no user set")
+var ErrDBURL = errors.New("invalid database url")
+var ErrTime = errors.New("time not initialized")
 
 type Config struct {
 	DBURL string `json:"db_url"`
@@ -31,31 +36,35 @@ func (cfg *Config) SaveConfig() error {
 	return write(*cfg)
 }
 
-func Read() (Config, error) {
+func Read() (*Config, error) {
 	fullPath, err := getConfigFilePath()
 	if err != nil {
-		return Config{}, err
+		return nil, err
 	}
 
 	file, err := os.OpenFile(fullPath, os.O_CREATE, 0644)
 	if err != nil {
-		return Config{}, err
+		return nil, err
 	}
 	defer file.Close()
 
 	decoder := json.NewDecoder(file)
-	cfg := Config{DBURL: db_usl}
+	cfg := Config{}
 	err = decoder.Decode(&cfg)
 	if err == io.EOF {
-		err := write(Config{})
+		err := write(Config{
+			DBURL: db_url,
+			CurrentUserName: "",
+			LastOpened: time.Now(),
+		})
 		if err != nil {
-			return Config{}, err
+			return nil, err
 		}
 	} else if err != nil {
-		return Config{}, err
+		return nil, err
 	}
 
-	return cfg, nil
+	return &cfg, nil
 }
 
 func getConfigFilePath() (string, error) {
@@ -92,3 +101,17 @@ func write(cfg Config) error {
 
 	return nil
 }
+
+func (cfg *Config) Validate() error {
+	if cfg.CurrentUserName != "" {
+		return ErrMissingUser
+	}
+	if cfg.DBURL != db_url {
+		return ErrDBURL
+	}
+	if cfg.LastOpened.Before(time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)) {
+		return ErrTime
+	}
+	return nil
+}
+

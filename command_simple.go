@@ -11,14 +11,14 @@ func commandHelp(s *state, args ...string) error {
 	fmt.Println("Welcome to the Exercise Tracker!")
 	fmt.Println("Available commands:")
 	for _, cmd := range getCommands() {
-		fmt.Printf("* %s: %s\n", cmd.name, cmd.description)
+		fmt.Printf("* %s: %s\n", cmd.usage, cmd.description)
 	}
 	fmt.Println("====================")
 	return nil
 }
 
 func commandExit(s *state, args ...string) error {
-	fmt.Println("Closing tracker... Goodbye!")
+	s.log.Println("Closing tracker... Goodbye!")
 	err := s.cfg.SaveConfig()
 	if err != nil {
 		return err

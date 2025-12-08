@@ -1,74 +1,86 @@
 package main
 
-
 type cliCommand struct {
-	name 			string
-	description 	string
-	callback func(*state, ...string) error
+	name        string
+	description string
+	usage       string
+	callback    func(*state, ...string) error
 }
 
-func getCommands() map[string]cliCommand{
+func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"help": {
-			name: "help",
+			name:        "help",
 			description: "Displays a list of all commands",
-			callback: commandHelp,
+			usage:       "help",
+			callback:    commandHelp,
 		},
 		"exit": {
-			name: "exit",
+			name:        "exit",
 			description: "Exits the program",
-			callback: commandExit,
+			usage:       "exit",
+			callback:    commandExit,
 		},
 		"user": {
-			name: "user [username]",
+			name:        "user",
 			description: "Switch to a new user or describe the current user",
-			callback: commandUser,
+			usage:       "user [list|username]",
+			callback:    commandUser,
 		},
 		"register": {
-			name: "register",
+			name:        "register",
 			description: "Register a new user",
-			callback: commandRegister,
+			usage:       "register",
+			callback:    commandRegister,
 		},
 		"graph": {
-			name: "graph",
+			name:        "graph",
 			description: "Graph available data",
-			callback: commandGraph,
+			usage:       "graph <all|[specific_stat]>",
+			callback:    commandGraph,
 		},
 		"daily": {
-			name: "daily",
+			name:        "daily",
 			description: "Enter data for a day",
-			callback: commandDaily,
+			usage:       "daily",
+			callback:    commandDaily,
 		},
 		"goals": {
-			name: "goals",
+			name:        "goals",
 			description: "List goals and highlight achieved ones",
-			callback: commandGoals,
+			usage:       "goals [specific_stat]",
+			callback:    commandGoals,
 		},
 		"export": {
-			name: "export",
+			name:        "export",
 			description: "Export the database",
-			callback: commandExport,
+			usage:       "export [user]",
+			callback:    commandExport,
 		},
 		"import": {
-			name: "import",
+			name:        "import",
 			description: "Import a database",
-			callback: commandImport,
+			usage:       "import <file_name>",
+			callback:    commandImport,
 		},
 		"change": {
-			name: "change",
+			name:        "change",
 			description: "Change a saved value",
-			callback: commandChange,
+			usage:       "change <date>",
+			callback:    commandChange,
 		},
 		"clear": {
-			name: "clear",
+			name:        "clear",
 			description: "Clear the screen",
-			callback: commandClear,
+			usage:       "clear",
+			callback:    commandClear,
 		},
 	}
 }
 
 func altCommands() map[string]string {
-	return map[string]string {
+	return map[string]string{
 		"?": "help",
+		"users": "user list",
 	}
 }

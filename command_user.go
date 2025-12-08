@@ -8,22 +8,26 @@ import (
 )
 
 func commandUser(s *state, args ...string) error {
-	if len(args) > 0 {
+	if len(args) == 0 {
+		user, err := s.db.GetUserByName(context.Background(), s.cfg.CurrentUserName)
+		if err != nil {
+			return err
+		}
+		printUser(user)
+	}
+	if args[0] == "list" {
 		users, err := s.db.ListUsers(context.Background())
 		if err != nil {
 			return err
 		}
 		if len(users) == 0 {
-			fmt.Println("no users")
+			return fmt.Errorf("no users in database")
 		}
 		for _, user := range users {
 			fmt.Println(user)
 		}
 	} else {
-		if s.cfg.CurrentUserName == "" {
-			return fmt.Errorf("no user set")
-		}
-		user, err := s.db.GetUserByName(context.Background(), s.cfg.CurrentUserName)
+		user, err := s.db.GetUserByName(context.Background(), args[0])
 		if err != nil {
 			return err
 		}

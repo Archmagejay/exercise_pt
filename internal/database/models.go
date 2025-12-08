@@ -12,35 +12,35 @@ import (
 )
 
 type Entry struct {
-	ID         uuid.UUID
-	UserID     uuid.UUID
-	Date       time.Time
-	Cardio     string
-	CardioType bool
-	PlateCount []int32
-	PlankDur   time.Time
-	Weight     string
-	Waist      string
+	ID         uuid.UUID `json:"id"`
+	UserID     uuid.UUID `json:"user_id"`
+	Date       time.Time `json:"date"`
+	Cardio     string    `json:"cardio"`
+	CardioType bool      `json:"cardio_type"`
+	PlateCount []int32   `json:"plate_count"`
+	PlankDur   time.Time `json:"plank_dur"`
+	Weight     string    `json:"weight"`
+	Waist      string    `json:"waist"`
 }
 
 type Goal struct {
-	ID        uuid.UUID
-	Type      string
-	GoalCount []int32
-	GoalDur   sql.NullTime
-	GoalSpeed sql.NullString
-	GoalTier  int32
+	ID        uuid.UUID      `json:"id"`
+	Type      string         `json:"type"`
+	GoalCount []int32        `json:"goal_count"`
+	GoalDur   sql.NullTime   `json:"goal_dur"`
+	GoalSpeed sql.NullString `json:"goal_speed"`
+	GoalTier  int32          `json:"goal_tier"`
 }
 
 type User struct {
-	ID        uuid.UUID
-	Name      string
-	Height    int32
-	StartDate time.Time
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	Height    int32     `json:"height"`
+	StartDate time.Time `json:"start_date"`
 }
 
 type UserGoal struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
-	GoalID uuid.UUID
+	ID     uuid.UUID `json:"id"`
+	UserID uuid.UUID `json:"user_id"`
+	GoalID uuid.UUID `json:"goal_id"`
 }

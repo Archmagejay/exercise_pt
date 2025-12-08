@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"strings"
-
 	//"time"
 
 )
@@ -31,11 +30,18 @@ func startRepl(s *state) {
 		}
 		alt, exists := altCommands()[commandName]
 		if exists {
-			commandName = alt
+			alt :=  strings.Fields(alt)
+			commandName = alt[0]
+			if len(alt) > 1 {
+				args = alt[1:]
+			}
 		}
 		command, exists := getCommands()[commandName]
 		if exists {
-			if err := command.callback(s, args...); err != nil {
+			err := command.callback(s, args...)
+			if err == ErrArgs {
+				fmt.Println("Usage: ", command.usage)
+			} else if err != nil {
 				fmt.Printf("Command: %s errored: %s\n", command.name, fmt.Errorf("%w", err))
 			}
 			continue

@@ -17,9 +17,6 @@ WHERE id = $1
 `
 
 // Select the specified user by UUID from 'users'
-//
-//	SELECT id, name, height, start_date FROM users
-//	WHERE id = $1
 func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserById, id)
 	var i User
@@ -38,9 +35,6 @@ WHERE name = $1
 `
 
 // Select the specified user by name for 'users'
-//
-//	SELECT id, name, height, start_date FROM users
-//	WHERE name = $1
 func (q *Queries) GetUserByName(ctx context.Context, name string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserByName, name)
 	var i User
@@ -58,8 +52,6 @@ SELECT id, name, height, start_date FROM users
 `
 
 // Select all rows from 'users'
-//
-//	SELECT id, name, height, start_date FROM users
 func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 	rows, err := q.db.QueryContext(ctx, listUsers)
 	if err != nil {
@@ -86,4 +78,20 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const newUser = `-- name: NewUser :exec
+INSERT INTO users (name, height)
+VALUES ($1, $2)
+`
+
+type NewUserParams struct {
+	Name   string `json:"name"`
+	Height int32  `json:"height"`
+}
+
+// Add a new user entry in 'users'
+func (q *Queries) NewUser(ctx context.Context, arg NewUserParams) error {
+	_, err := q.db.ExecContext(ctx, newUser, arg.Name, arg.Height)
+	return err
 }

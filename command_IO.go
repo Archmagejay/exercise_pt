@@ -1,6 +1,8 @@
 package main
 
-import "errors"
+import (
+	"errors"
+)
 
 func commandExport(s *state, args ...string) error {
 
@@ -8,6 +10,8 @@ func commandExport(s *state, args ...string) error {
 }
 
 func commandImport(s *state, args ...string) error {
-
+	if len(args) == 0 {
+		return ErrArgs
+	}
 	return errors.New("not Implemented")
 }
