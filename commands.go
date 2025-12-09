@@ -80,7 +80,7 @@ func getCommands() map[string]cliCommand {
 
 func altCommands() map[string]string {
 	return map[string]string{
-		"?": "help",
+		"?":     "help",
 		"users": "user list",
 	}
 }

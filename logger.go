@@ -1,4 +1,4 @@
-package logger
+package main
 
 import (
 	"log"
@@ -24,16 +24,14 @@ func InitLogger() (*log.Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger := log.New(f, "", log.LstdFlags|log.Lmsgprefix)
+	logger := log.New(f, "| ", log.LstdFlags|log.Lmsgprefix)
 	if logger == nil {
 		log.Fatal("Creating new logger failed")
 	}
 	return logger, nil
 }
 
-
-
-func Log (l *log.Logger, severity level, msg any) {
+func (s *state) Log(severity level, msg any) {
 	var str string
 
 	if m, ok := msg.(string); ok {
@@ -43,18 +41,16 @@ func Log (l *log.Logger, severity level, msg any) {
 	} else {
 		log.Fatal("Incompatible type")
 	}
-
-
 	switch severity {
 	case LogInfo:
-		l.Printf("INFO: %s", str)
+		s.l.Printf("INFO: %s", str)
 	case LogWarning:
-		l.Printf("WARNING: %s", str)
+		s.l.Printf("WARNING: %s", str)
 	case LogError:
-		l.Printf("ERROR: %s", str)
+		s.l.Printf("ERROR: %s", str)
 	case LogFatal:
-		l.Printf("FATAL ERROR: %s", str)
+		s.l.Printf("FATAL ERROR: %s", str)
 	default:
-		l.Printf("UNKNOWN: %s", str)
+		s.l.Printf("UNKNOWN: %s", str)
 	}
 }

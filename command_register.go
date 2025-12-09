@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
+	"strings"
 	"github.com/archmagejay/excercise_pt/internal/database"
 )
 
@@ -14,19 +14,33 @@ func commandRegister(s *state, args ...string) error {
 	}
 
 	fmt.Println("Please enter your desired username")
+
+	NAME:
 	fmt.Print("> ")
 	s.in.Scan()
 	name := s.in.Text()
-	if u, err := s.db.GetUserByName(context.Background(), name); err == nil {
-		log.Println(err)
+
+	if u, err := s.db.GetUserByName(context.Background(), name); err != nil {
+		s.Log(LogError, err)
 	} else {
-		log.Println(u)
+		fmt.Printf("user [%s] already registered, try again?\n", u.Name)
+		goto NAME
+	}
+	fmt.Printf("Is %s your desired username? (y/n)\n > ", name)
+	s.in.Scan()
+	if strings.ToLower(s.in.Text()) != "y" {
+		goto NAME
 	}
 
+	fmt.Println("Please enter your height in centimeters")
 
+	HEIGHT:
+	fmt.Print("> ")
+	s.in.Scan()
 	height, err := strconv.ParseInt(s.in.Text(), 10, 32)
 	if err != nil {
-		return err
+		fmt.Println("Use the format: ###")
+		goto HEIGHT
 	}
 
 	user := database.NewUserParams{
@@ -34,7 +48,9 @@ func commandRegister(s *state, args ...string) error {
 		Height: int32(height),
 	}
 
-	s.db.NewUser(context.Background(), user)
+	if err := s.db.NewUser(context.Background(), user); err != nil {
+		s.Log(LogError, err)
+	}
 
 	return nil
 }

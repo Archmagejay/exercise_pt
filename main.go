@@ -4,37 +4,35 @@ import (
 	"bufio"
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"github.com/archmagejay/excercise_pt/internal/config"
 	"github.com/archmagejay/excercise_pt/internal/database"
-	"github.com/archmagejay/excercise_pt/internal/logger"
+
 	_ "github.com/lib/pq"
 )
 
 var ErrArgs = errors.New("invalid args")
+var ErrNotImplemented = errors.New("not yet implemented")
 
 type state struct {
 	db  *database.Queries
 	cfg *config.Config
 	in  *bufio.Scanner
-	log *log.Logger
+	l   *log.Logger
 }
 
+// Program startup tasks
 func main() {
-	l, err := logger.InitLogger()
-	if err != nil {
-		logger.Log(l, logger.LogFatal, err)
-	}
-
+	// Try reading the config file
 	cfg, err := config.Read()
 	if err != nil {
-		logger.Log(l, logger.LogFatal, fmt.Sprintf("error reading config: %v", err))
+		log.Fatalf("error reading config: %v", err)
 	}
 
+	// Try validating the config file
 	if err := cfg.Validate(); err != nil {
 		switch err {
 		case config.ErrMissingUser:
@@ -48,7 +46,7 @@ func main() {
 	}
 	cfg.LastOpened = time.Now()
 
-	//log.Print(cfg.LastOpened.Format("02/01/2006 15:04:05"))
+	// Attempt to connect to the database
 	db, err := sql.Open("postgres", cfg.DBURL)
 	if err != nil {
 		log.Fatalf("error connecting to db: %v", err)
@@ -56,12 +54,32 @@ func main() {
 	defer db.Close()
 	dbQueries := database.New(db)
 
+	// Initialize the logger
+	l, err := InitLogger()
+	if err != nil {
+		log.Fatalf("error setting up logger")
+	}
+
 	s := &state{
 		db:  dbQueries,
 		cfg: cfg,
 		in:  bufio.NewScanner(os.Stdin),
-		log: l,
+		l: l,
 	}
 
+	// If everything in initalized start the REPL interface
 	startRepl(s)
+}
+
+
+// Shut down the program gracefully
+func shutdown(s *state) {
+	s.Log(LogInfo, "Closing tracker... Goodbye!")
+
+	// Try to save the config file to disk
+	if err := s.cfg.SaveConfig(); err != nil {
+		s.Log(LogError, err)
+	}
+
+	os.Exit(0)
 }

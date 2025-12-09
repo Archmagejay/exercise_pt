@@ -9,19 +9,28 @@ import (
 
 func commandUser(s *state, args ...string) error {
 	if len(args) == 0 {
-		user, err := s.db.GetUserByName(context.Background(), s.cfg.CurrentUserName)
-		if err != nil {
-			return err
+		if s.cfg.CurrentUserName != "" {
+			user, err := s.db.GetUserByName(context.Background(), s.cfg.CurrentUserName)
+			if err.Error() == "sql: no rows in result set" {
+				return fmt.Errorf("user <%s> not found in database", s.cfg.CurrentUserName)
+			} else if err != nil {
+				return err
+			}
+			printUser(user)
+		} else {
+			return fmt.Errorf("no user set")
 		}
-		printUser(user)
+		return nil
 	}
+
 	if args[0] == "list" {
 		users, err := s.db.ListUsers(context.Background())
 		if err != nil {
 			return err
 		}
 		if len(users) == 0 {
-			return fmt.Errorf("no users in database")
+			fmt.Println("No users in database")
+
 		}
 		for _, user := range users {
 			fmt.Println(user)
@@ -33,7 +42,6 @@ func commandUser(s *state, args ...string) error {
 		}
 		printUser(user)
 	}
-
 	return nil
 }
 
