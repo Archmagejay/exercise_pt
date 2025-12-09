@@ -1,9 +1,8 @@
 # Other
 scratchpad.md
 
-# Sql gen
-sqlc.yaml
-sql/
-
 # Generated
 log.txt
+
+# Testing
+*.sh
