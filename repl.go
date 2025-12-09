@@ -13,8 +13,18 @@ const (
 	prefix    = "> "
 )
 
+var reservedInputs = map[string]struct{}{
+	"":{},
+	"cancel":{},
+	"y":{},
+	"Y":{},
+	"n":{},
+	"N":{},
+}
+
 // The main REPL CLI function
 func startRepl(s *state) {
+	s.Log(LogInfo, "Program started")
 	printWelcome()
 	for {
 		fmt.Print(prefix)

@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -80,18 +81,33 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
-const newUser = `-- name: NewUser :exec
-INSERT INTO users (name, height)
-VALUES ($1, $2)
+const newUser = `-- name: NewUser :one
+INSERT INTO users (id, name, height, start_date)
+VALUES ($1, $2, $3, $4)
+RETURNING id, name, height, start_date
 `
 
 type NewUserParams struct {
-	Name   string `json:"name"`
-	Height int32  `json:"height"`
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	Height    int32     `json:"height"`
+	StartDate time.Time `json:"start_date"`
 }
 
 // Add a new user entry in 'users'
-func (q *Queries) NewUser(ctx context.Context, arg NewUserParams) error {
-	_, err := q.db.ExecContext(ctx, newUser, arg.Name, arg.Height)
-	return err
+func (q *Queries) NewUser(ctx context.Context, arg NewUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, newUser,
+		arg.ID,
+		arg.Name,
+		arg.Height,
+		arg.StartDate,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Height,
+		&i.StartDate,
+	)
+	return i, err
 }

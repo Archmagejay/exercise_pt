@@ -24,7 +24,7 @@ func getCommands() map[string]cliCommand {
 		"user": {
 			name:        "user",
 			description: "Switch to a new user or describe the current user",
-			usage:       "user [list|username]",
+			usage:       "user [list|me]",
 			callback:    commandUser,
 		},
 		"register": {

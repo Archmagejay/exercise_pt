@@ -5,21 +5,26 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
+
 	"github.com/archmagejay/excercise_pt/internal/database"
+	"github.com/google/uuid"
 )
 
 func commandRegister(s *state, args ...string) error {
-	if len(args) != 1 {
-		return ErrArgs
-	}
-
-	fmt.Println("Please enter your desired username")
+	fmt.Println("Please enter your desired username\nPress enter to cancel")
 
 	NAME:
-	fmt.Print("> ")
+	fmt.Print("register/username > ")
 	s.in.Scan()
 	name := s.in.Text()
-
+	if name == "" {
+		return nil
+	}
+	if _, ok := reservedInputs[name]; ok {
+		fmt.Print("That name is blacklisted, try again\n")
+		goto NAME
+	}
 	if u, err := s.db.GetUserByName(context.Background(), name); err != nil {
 		s.Log(LogError, err)
 	} else {
@@ -35,7 +40,7 @@ func commandRegister(s *state, args ...string) error {
 	fmt.Println("Please enter your height in centimeters")
 
 	HEIGHT:
-	fmt.Print("> ")
+	fmt.Print("register/height > ")
 	s.in.Scan()
 	height, err := strconv.ParseInt(s.in.Text(), 10, 32)
 	if err != nil {
@@ -44,13 +49,18 @@ func commandRegister(s *state, args ...string) error {
 	}
 
 	user := database.NewUserParams{
+		ID: uuid.New(),
 		Name: name,
 		Height: int32(height),
+		StartDate: time.Now(),
 	}
 
-	if err := s.db.NewUser(context.Background(), user); err != nil {
+	if u, err := s.db.NewUser(context.Background(), user); err != nil {
 		s.Log(LogError, err)
+	} else {
+	fmt.Print(seperator, "New user created: \n")
+	fmt.Printf("* Name: %s\n* Height: %d\n* Starting date: %v\n", u.Name, u.Height, u.StartDate.Format(time.DateOnly))
+	fmt.Print(seperator)
 	}
-
 	return nil
 }
