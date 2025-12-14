@@ -15,5 +15,5 @@ CREATE TABLE entrys (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE entrys;
+DROP TABLE IF EXISTS entrys;
 -- +goose StatementEnd

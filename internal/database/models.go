@@ -24,12 +24,13 @@ type Entry struct {
 }
 
 type Goal struct {
-	ID        uuid.UUID      `json:"id"`
-	Type      string         `json:"type"`
-	GoalCount []int32        `json:"goal_count"`
-	GoalDur   sql.NullTime   `json:"goal_dur"`
-	GoalSpeed sql.NullString `json:"goal_speed"`
-	GoalTier  int32          `json:"goal_tier"`
+	ID             uuid.UUID      `json:"id"`
+	Type           string         `json:"type"`
+	GoalPlateCount []int32        `json:"goal_plate_count"`
+	GoalDur        sql.NullTime   `json:"goal_dur"`
+	GoalDecimal    sql.NullString `json:"goal_decimal"`
+	GoalNumber     sql.NullInt32  `json:"goal_number"`
+	GoalTier       int32          `json:"goal_tier"`
 }
 
 type User struct {

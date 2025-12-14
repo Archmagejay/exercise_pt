@@ -1,0 +1,45 @@
+[
+    {
+        "type": "Treadmill",
+        "goal_speed": [
+            8,
+            9,
+            10,
+            11
+        ]
+    },
+    {
+        "type": "Bike",
+        "goal_speed": []
+    },
+    {
+        "type": "Plank",
+        "goal_dur": []
+    },
+    {
+        "type": "exercises",
+        "goal_plate_count": [
+            [],
+            [],
+            [],
+            []
+        ]
+    },
+    {
+        "type": "Weight",
+        "goal_decimal": []
+    },
+    {
+        "type": "Waist",
+        "goal_number": []
+    },
+    {
+        "type": "Park Run",
+        "goal_dur": [
+            "30:00",
+            "28:30",
+            "27:00",
+            "25:00"
+        ]
+    }
+]
