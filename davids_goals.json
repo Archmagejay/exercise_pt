@@ -1,45 +1,65 @@
 [
     {
         "type": "Treadmill",
-        "goal_speed": [
-            8,
-            9,
-            10,
-            11
+        "goal_decimal": [
+            "8.2",
+            "9",
+            "10",
+            "11"
         ]
     },
     {
         "type": "Bike",
-        "goal_speed": []
+        "goal_decimal": [
+            "8.4",
+            "9",
+            "10",
+            "11"
+        ]
     },
     {
         "type": "Plank",
-        "goal_dur": []
+        "goal_dur": [
+            "12m11s",
+            "12m30s",
+            "13m",
+            "14m"
+        ]
     },
     {
-        "type": "exercises",
+        "type": "Plates",
         "goal_plate_count": [
-            [],
-            [],
-            [],
-            []
+            [1, 1, 1, 1, 1, 1, 1],
+            [2, 2, 2, 2, 2, 2, 2],
+            [3, 3, 3, 3, 3, 3, 3],
+            [4, 4, 4, 4, 4, 4, 4]
         ]
     },
     {
         "type": "Weight",
-        "goal_decimal": []
+        "goal_decimal": [
+            "92",
+            "90",
+            "87.5",
+            "85"
+        ]
     },
     {
         "type": "Waist",
-        "goal_number": []
+        "goal_number": [
+            120,
+            115,
+            110,
+            105
+        ]
     },
     {
         "type": "Park Run",
         "goal_dur": [
-            "30:00",
-            "28:30",
-            "27:00",
-            "25:00"
+            "30m",
+            "28m30s",
+            "27m",
+            "25m"
         ]
     }
 ]

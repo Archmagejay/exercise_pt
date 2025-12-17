@@ -7,7 +7,7 @@ SELECT * FROM goals;
 INSERT INTO goals
 (
     id,
-    type,
+    goal_type,
     goal_plate_count,
     goal_dur,
     goal_decimal,
@@ -22,10 +22,14 @@ VALUES (
 -- Get all registered goal of a certain type from 'goals'
 SELECT *
 FROM goals
-WHERE type = $1;
+WHERE goal_type = $1;
 
 -- name: GetGoalsByTier :many
 -- Get all goals of a specified tier from 'goals'
 SELECT *
 FROM goals
 WHERE goal_tier = $1;
+
+-- name: DeletaAllGoals :exec
+-- Remove all entries from 'goals'
+DELETE FROM goals;

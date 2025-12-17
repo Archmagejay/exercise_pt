@@ -47,7 +47,7 @@ func getCommands() map[string]cliCommand {
 		},
 		"goals": {
 			name:        "goals",
-			description: "List goals and highlight achieved ones",
+			description: "List all goals, highlighting achieved ones or list goals within a specific stat",
 			usage:       "goals [specific_stat]",
 			callback:    commandGoals,
 		},

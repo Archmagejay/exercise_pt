@@ -6,10 +6,65 @@ package database
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+type GoalTypes string
+
+const (
+	GoalTypesBenchPress      GoalTypes = "Bench Press"
+	GoalTypesBike            GoalTypes = "Bike"
+	GoalTypesBisepCurls      GoalTypes = "Bisep Curls"
+	GoalTypesLateralPulldown GoalTypes = "Lateral Pulldown"
+	GoalTypesParkRun         GoalTypes = "Park Run"
+	GoalTypesPectoralFly     GoalTypes = "Pectoral Fly"
+	GoalTypesPlank           GoalTypes = "Plank"
+	GoalTypesQuadCurls       GoalTypes = "Quad Curls"
+	GoalTypesTreadmill       GoalTypes = "Treadmill"
+	GoalTypesTrapeziusLift   GoalTypes = "Trapezius Lift"
+	GoalTypesTrisepCurls     GoalTypes = "Trisep Curls"
+	GoalTypesWaist           GoalTypes = "Waist"
+	GoalTypesWeight          GoalTypes = "Weight"
+)
+
+func (e *GoalTypes) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GoalTypes(s)
+	case string:
+		*e = GoalTypes(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GoalTypes: %T", src)
+	}
+	return nil
+}
+
+type NullGoalTypes struct {
+	GoalTypes GoalTypes `json:"goal_types"`
+	Valid     bool      `json:"valid"` // Valid is true if GoalTypes is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGoalTypes) Scan(value interface{}) error {
+	if value == nil {
+		ns.GoalTypes, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GoalTypes.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGoalTypes) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GoalTypes), nil
+}
 
 type Entry struct {
 	ID         uuid.UUID `json:"id"`
@@ -18,16 +73,16 @@ type Entry struct {
 	Cardio     string    `json:"cardio"`
 	CardioType bool      `json:"cardio_type"`
 	PlateCount []int32   `json:"plate_count"`
-	PlankDur   time.Time `json:"plank_dur"`
+	PlankDur   int64     `json:"plank_dur"`
 	Weight     string    `json:"weight"`
 	Waist      string    `json:"waist"`
 }
 
 type Goal struct {
 	ID             uuid.UUID      `json:"id"`
-	Type           string         `json:"type"`
+	GoalType       GoalTypes      `json:"goal_type"`
 	GoalPlateCount []int32        `json:"goal_plate_count"`
-	GoalDur        sql.NullTime   `json:"goal_dur"`
+	GoalDur        sql.NullString `json:"goal_dur"`
 	GoalDecimal    sql.NullString `json:"goal_decimal"`
 	GoalNumber     sql.NullInt32  `json:"goal_number"`
 	GoalTier       int32          `json:"goal_tier"`

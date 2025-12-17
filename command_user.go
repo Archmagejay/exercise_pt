@@ -65,5 +65,4 @@ func printUser(u database.User) {
 	fmt.Printf("* Name:       %s\n", u.Name)
 	fmt.Printf("* Height:     %d\n", u.Height)
 	fmt.Printf("* Start date: %s\n", u.StartDate.Format(time.DateOnly))
-
 }

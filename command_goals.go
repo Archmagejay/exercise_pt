@@ -6,32 +6,69 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/archmagejay/excercise_pt/internal/database"
 	"github.com/google/uuid"
 )
 
 type json_goals []struct {
-	Type           string `json:"type"`
-	GoalSpeed      []int  `json:"goal_speed,omitempty"`
+	Type           string    `json:"type"`
 	GoalDur        []string  `json:"goal_dur,omitempty"`
-	GoalPlateCount [][]int  `json:"goal_plate_count,omitempty"`
-	GoalDecimal    []float32  `json:"goal_decimal,omitempty"`
-	GoalNumber     []int  `json:"goal_number,omitempty"`
+	GoalPlateCount [][]int32 `json:"goal_plate_count,omitempty"`
+	GoalDecimal    []string  `json:"goal_decimal,omitempty"`
+	GoalInt        []int32   `json:"goal_number,omitempty"`
+}
+
+var tierMap = map[int32]string{
+	0: "Ok",
+	1: "Good",
+	2: "Great",
+	3: "Superb",
+}
+var pcArr = []string{
+	"Bench Press",
+	"Bisep Curls",
+	"Lateral Pulldown",
+	"Pectoral Fly",
+	"Quad Curls",
+	"Trapezius Lift",
+	"Trisep Curls",
 }
 
 func commandGoals(s *state, args ...string) error {
+	if len(args) > 0 && args[0] != "" {
+		if args[0] == "reset" {
+			err := s.db.DeletaAllGoals(context.Background())
+			if err != nil {
+				return err
+			}
+			fmt.Println("All goals reset")
+			s.Log(LogInfo, "goals table cleared")
+			return nil
+		}
+		return ErrNotImplemented
+	}
 	if goals, err := s.db.GetAllGoals(context.Background()); len(goals) == 0 && err == nil {
-		if err := defaultGoals(s, ""); err != nil {
+		if err := importGoals(s, ""); err != nil {
 			return err
 		}
 	} else if err != nil {
 		return err
+	} else {
+		for _, goal := range goals {
+			err = printGoalDebug(goal, false)
+			if err != nil {
+				s.Log(LogError, err)
+			}
+		}
 	}
+
 	return nil
 }
 
-func defaultGoals(s *state, _ string) error {
+func importGoals(s *state, _ string) error {
 	path, err := os.Getwd()
 	if err != nil {
 		s.Log(LogFatal, err)
@@ -54,28 +91,149 @@ func defaultGoals(s *state, _ string) error {
 
 	for _, g := range goal_array {
 		goal := database.AddGoalParams{
-			ID: uuid.New(),
-			Type: g.Type,
+			GoalType: database.GoalTypes(g.Type),
 		}
 		switch g.Type {
-			case "Treadmill":
-			case "Bike":
-			case "Plates":
-			case "Weight":
-			case "Waist":
-				for i, t := range g.GoalNumber {
-					goal.GoalTier = int32(i)
-					goal.GoalNumber = sql.NullInt32{
-						Int32: int32(t),
-						Valid: true,
-					}
-					s.db.AddGoal(context.Background(), goal)
+		case "Treadmill":
+			fallthrough
+		case "Bike":
+			for i, t := range g.GoalDecimal {
+				goal.ID = uuid.New()
+				goal.GoalTier = int32(i)
+				goal.GoalDecimal = sql.NullString{
+					String: fmt.Sprint(t),
+					Valid:  true,
 				}
-			case "Plank":
-			case "Park Run":
-			default:
-				s.Log(LogWarning, fmt.Errorf("undefined goal type in default_goals.json"))
+
+				err := s.db.AddGoal(context.Background(), goal)
+				if err != nil {
+					return fmt.Errorf("error adding goal: %v\nerror: %w", goal, err)
+				}
+			}
+		case "Plates":
+			for i, t := range g.GoalPlateCount {
+				goal.ID = uuid.New()
+				goal.GoalTier = int32(i)
+				goal.GoalType = database.GoalTypes(pcArr[i])
+				if len(t) != 7 {
+					s.Log(LogWarning, fmt.Sprintf("Incorrect array length for plate count in array: %d, %v", i+1, t))
+					continue
+				}
+				goal.GoalPlateCount = t
+
+				err := s.db.AddGoal(context.Background(), goal)
+				if err != nil {
+					return fmt.Errorf("error adding goal: %v\nerror: %w", goal, err)
+				}
+			}
+		case "Weight":
+			for i, t := range g.GoalDecimal {
+				goal.ID = uuid.New()
+				goal.GoalTier = int32(i)
+				goal.GoalDecimal = sql.NullString{
+					String: fmt.Sprint(t),
+					Valid:  true,
+				}
+
+				err := s.db.AddGoal(context.Background(), goal)
+				if err != nil {
+					return fmt.Errorf("error adding goal: %v\nerror: %w", goal, err)
+				}
+			}
+		case "Waist":
+			for i, t := range g.GoalInt {
+				goal.ID = uuid.New()
+				goal.GoalTier = int32(i)
+				goal.GoalNumber = sql.NullInt32{
+					Int32: t,
+					Valid: true,
+				}
+
+				err := s.db.AddGoal(context.Background(), goal)
+				if err != nil {
+					return fmt.Errorf("error adding goal: %v\nerror: %w", goal, err)
+				}
+			}
+		case "Plank":
+			fallthrough
+		case "Park Run":
+			for i, t := range g.GoalDur {
+				goal.ID = uuid.New()
+				goal.GoalTier = int32(i)
+				dur, err := time.ParseDuration(t)
+				if err != nil {
+					return fmt.Errorf("error parsing time: %v\nerror: %w", t, err)
+				}
+				goal.GoalDur = sql.NullString{
+					String: dur.String(),
+					Valid:  true,
+				}
+
+				err = s.db.AddGoal(context.Background(), goal)
+				if err != nil {
+					return fmt.Errorf("error adding goal: %v\nerror: %w", goal, err)
+				}
+			}
+		default:
+			s.Log(LogWarning, fmt.Errorf("undefined goal type %s in %s", g.Type, path))
+			continue
 		}
 	}
+
+	fmt.Println("Goals imported successfully")
+
+	s.Log(LogInfo, fmt.Sprintf("Successfully imported goals from: %s", path))
+	return nil
+}
+
+func printGoalDebug(g database.Goal, debug bool) error {
+	//fmt.Print(seperator)
+	if debug {
+		fmt.Printf("* ID: %v\n", g.ID)
+	}
+	if g.GoalTier == 0 {
+		fmt.Printf("%s* Type: %s\n", seperator, g.GoalType)
+	}
+
+	fmt.Printf("* Tier: %s\t", tierMap[g.GoalTier])
+	var plates bool
+	var goal, postfix string
+
+	switch g.GoalType {
+	case database.GoalTypesBike:
+		fallthrough
+	case database.GoalTypesTreadmill: // Avg Speed
+		goal = g.GoalDecimal.String + " km/s"
+	case database.GoalTypesWeight: // Kilograms
+		goal = g.GoalDecimal.String + " kg"
+	case database.GoalTypesParkRun:
+		fallthrough
+	case database.GoalTypesPlank: // Duration
+		time := strings.Split(g.GoalDur.String, ":")
+		for i, t := range time {
+			if t == "00" {
+				continue
+			}
+			switch i {
+			case 0:
+				goal += t + "h "
+			case 1:
+				goal += t + "m "
+			case 2:
+				goal += t + "s"
+			}
+		}
+	case database.GoalTypesWaist: // Centimeters
+		goal = fmt.Sprint(g.GoalNumber.Int32) + " cm"
+	default: // Plate Counts
+		plates = true
+		for i, pc := range g.GoalPlateCount {
+			goal += fmt.Sprintf("\n\t* %s:   \t%d Plates", pcArr[i], pc)
+		}
+	}
+	if plates {
+		postfix = "s"
+	}
+	fmt.Printf("* Goal%s: %s\n", postfix, goal)
 	return nil
 }

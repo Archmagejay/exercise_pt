@@ -17,7 +17,7 @@ const addGoal = `-- name: AddGoal :exec
 INSERT INTO goals
 (
     id,
-    type,
+    goal_type,
     goal_plate_count,
     goal_dur,
     goal_decimal,
@@ -31,9 +31,9 @@ VALUES (
 
 type AddGoalParams struct {
 	ID             uuid.UUID      `json:"id"`
-	Type           string         `json:"type"`
+	GoalType       GoalTypes      `json:"goal_type"`
 	GoalPlateCount []int32        `json:"goal_plate_count"`
-	GoalDur        sql.NullTime   `json:"goal_dur"`
+	GoalDur        sql.NullString `json:"goal_dur"`
 	GoalDecimal    sql.NullString `json:"goal_decimal"`
 	GoalNumber     sql.NullInt32  `json:"goal_number"`
 	GoalTier       int32          `json:"goal_tier"`
@@ -43,7 +43,7 @@ type AddGoalParams struct {
 func (q *Queries) AddGoal(ctx context.Context, arg AddGoalParams) error {
 	_, err := q.db.ExecContext(ctx, addGoal,
 		arg.ID,
-		arg.Type,
+		arg.GoalType,
 		pq.Array(arg.GoalPlateCount),
 		arg.GoalDur,
 		arg.GoalDecimal,
@@ -53,8 +53,18 @@ func (q *Queries) AddGoal(ctx context.Context, arg AddGoalParams) error {
 	return err
 }
 
+const deletaAllGoals = `-- name: DeletaAllGoals :exec
+DELETE FROM goals
+`
+
+// Remove all entries from 'goals'
+func (q *Queries) DeletaAllGoals(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deletaAllGoals)
+	return err
+}
+
 const getAllGoals = `-- name: GetAllGoals :many
-SELECT id, type, goal_plate_count, goal_dur, goal_decimal, goal_number, goal_tier FROM goals
+SELECT id, goal_type, goal_plate_count, goal_dur, goal_decimal, goal_number, goal_tier FROM goals
 `
 
 // Get all goals registered in 'goals'
@@ -69,7 +79,7 @@ func (q *Queries) GetAllGoals(ctx context.Context) ([]Goal, error) {
 		var i Goal
 		if err := rows.Scan(
 			&i.ID,
-			&i.Type,
+			&i.GoalType,
 			pq.Array(&i.GoalPlateCount),
 			&i.GoalDur,
 			&i.GoalDecimal,
@@ -90,7 +100,7 @@ func (q *Queries) GetAllGoals(ctx context.Context) ([]Goal, error) {
 }
 
 const getGoalsByTier = `-- name: GetGoalsByTier :many
-SELECT id, type, goal_plate_count, goal_dur, goal_decimal, goal_number, goal_tier
+SELECT id, goal_type, goal_plate_count, goal_dur, goal_decimal, goal_number, goal_tier
 FROM goals
 WHERE goal_tier = $1
 `
@@ -107,7 +117,7 @@ func (q *Queries) GetGoalsByTier(ctx context.Context, goalTier int32) ([]Goal, e
 		var i Goal
 		if err := rows.Scan(
 			&i.ID,
-			&i.Type,
+			&i.GoalType,
 			pq.Array(&i.GoalPlateCount),
 			&i.GoalDur,
 			&i.GoalDecimal,
@@ -128,14 +138,14 @@ func (q *Queries) GetGoalsByTier(ctx context.Context, goalTier int32) ([]Goal, e
 }
 
 const getGoalsByType = `-- name: GetGoalsByType :many
-SELECT id, type, goal_plate_count, goal_dur, goal_decimal, goal_number, goal_tier
+SELECT id, goal_type, goal_plate_count, goal_dur, goal_decimal, goal_number, goal_tier
 FROM goals
-WHERE type = $1
+WHERE goal_type = $1
 `
 
 // Get all registered goal of a certain type from 'goals'
-func (q *Queries) GetGoalsByType(ctx context.Context, type_ string) ([]Goal, error) {
-	rows, err := q.db.QueryContext(ctx, getGoalsByType, type_)
+func (q *Queries) GetGoalsByType(ctx context.Context, goalType GoalTypes) ([]Goal, error) {
+	rows, err := q.db.QueryContext(ctx, getGoalsByType, goalType)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +155,7 @@ func (q *Queries) GetGoalsByType(ctx context.Context, type_ string) ([]Goal, err
 		var i Goal
 		if err := rows.Scan(
 			&i.ID,
-			&i.Type,
+			&i.GoalType,
 			pq.Array(&i.GoalPlateCount),
 			&i.GoalDur,
 			&i.GoalDecimal,

@@ -7,7 +7,7 @@ CREATE TABLE entrys (
     cardio DECIMAL(5, 2) NOT NULL,
     cardio_type BOOLEAN NOT NULL,
     plate_count INTEGER ARRAY[7] NOT NULL,
-    plank_dur TIME NOT NULL,
+    plank_dur INTERVAL NOT NULL,
     weight DECIMAL(6, 2) NOT NULL,
     waist DECIMAL (6, 2) NOT NULL
 );
