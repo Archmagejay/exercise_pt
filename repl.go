@@ -9,29 +9,42 @@ import (
 const (
 	seperator = "====================\n"
 	welcome   = "Welcome to the Exercise Tracker!\n"
-	commands  = "Available commands:\n"
 	prefix    = "> "
+	//timestampFormat = "02/01/06 15:04:05"
+	noUserInCfg = "!!! No user detected. Please run the <register> command !!!"
 )
 
 var reservedInputs = map[string]struct{}{
-	"":{},
-	"cancel":{},
-	"y":{},
-	"Y":{},
-	"n":{},
-	"N":{},
+	"":       {},
+	"cancel": {},
+	"y":      {},
+	"Y":      {},
+	"n":      {},
+	"N":      {},
 }
 
 // The main REPL CLI function
 func startRepl(s *state) {
 	s.Log(LogInfo, "Program started")
-	printWelcome()
+
+	// Print the welcome message
+	fmt.Print(seperator, welcome, seperator)
+
 	for {
+		// Check if there is a valid user in the config
+		if !s.cfg.IsValidUser() {
+			// TODO: May be temporary and be replaced with a startup form later
+			fmt.Println(noUserInCfg)
+		}
 		fmt.Print(prefix)
 		s.in.Scan()
 		words := cleanInput(s.in.Text())
 		// If there is no input wait until there is
 		if len(words) == 0 {
+			continue
+		}
+		// If there is no user set in the config do not continue until the register command has been run
+		if !s.cfg.IsValidUser() && words[0] != "register" && words[0] != "exit" {
 			continue
 		}
 		// Extract the command from input
@@ -81,8 +94,4 @@ func startRepl(s *state) {
 func cleanInput(text string) []string {
 	lower := strings.ToLower(text)
 	return strings.Fields(lower)
-}
-
-func printWelcome() {
-	fmt.Print(seperator, welcome, seperator)
 }

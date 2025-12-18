@@ -30,6 +30,6 @@ SELECT *
 FROM goals
 WHERE goal_tier = $1;
 
--- name: DeletaAllGoals :exec
+-- name: DeleteAllGoals :exec
 -- Remove all entries from 'goals'
 DELETE FROM goals;

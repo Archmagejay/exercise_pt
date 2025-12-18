@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE entrys (
+CREATE TABLE entries (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users ON DELETE CASCADE,
     date TIME NOT NULL,
@@ -15,5 +15,5 @@ CREATE TABLE entrys (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS entrys;
+DROP TABLE IF EXISTS entries;
 -- +goose StatementEnd

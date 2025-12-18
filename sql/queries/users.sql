@@ -17,3 +17,12 @@ WHERE name = $1;
 INSERT INTO users (id, name, height, start_date)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
+
+-- name: DeleteAllUsers :exec
+-- Remove all users in 'users'
+DELETE FROM users;
+
+-- name: DeleteUser :exec
+-- Remove the specified user from 'users'
+DELETE FROM users
+WHERE name = $1;

@@ -40,7 +40,7 @@ var pcArr = []string{
 func commandGoals(s *state, args ...string) error {
 	if len(args) > 0 && args[0] != "" {
 		if args[0] == "reset" {
-			err := s.db.DeletaAllGoals(context.Background())
+			err := s.db.DeleteAllGoals(context.Background())
 			if err != nil {
 				return err
 			}

@@ -5,8 +5,8 @@ import (
 )
 
 func commandHelp(s *state, args ...string) error {
-	fmt.Print(seperator, commands)
-	for _, cmd := range getCommands() {
+	fmt.Print(seperator, "Usage key: \t<> required\t[] optional\t| option seperator\n", "Available commands:\n")
+	for _, cmd := range getCommandsOrdered() {
 		fmt.Printf("* %s: %s\n", cmd.usage, cmd.description)
 	}
 	fmt.Print(seperator)

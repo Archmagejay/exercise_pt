@@ -11,19 +11,12 @@ import (
 
 func commandUser(s *state, args ...string) error {
 	if len(args) == 0 {
-		fmt.Print(seperator, "Please enter a username to fetch the details of.\nPress enter to cancel\nUser ", prefix)
-		INPUT:
-		s.in.Scan()
-		name := s.in.Text()
-		if name == "" {
-			return nil
-		}
-		user, err := s.db.GetUserByName(context.Background(), name)
-		if err == sql.ErrNoRows {
-			fmt.Printf("User [%s] not found. Is the capitalization and spelling correct?\nUser > ", name)
-			goto INPUT
-		} else if err != nil {
+		user, err := queryUser(s, false)
+		if err != nil {
 			return err
+		}
+		if user.Name == "" {
+			return nil
 		}
 		printUser(user)
 		fmt.Print(seperator)
@@ -47,16 +40,71 @@ func commandUser(s *state, args ...string) error {
 		}
 	case "me":
 		user, err := s.db.GetUserByName(context.Background(), s.cfg.CurrentUserName)
-		if err != nil {
+		if err == sql.ErrNoRows {
+
+		} else if err != nil {
 			return err
 		}
 		printUser(user)
+	case "reset":
+		err := resetUsers(s)
+		if err != nil {
+			return err
+		}
+	case "remove":
+		return removeUser(s)
 	default:
 		return ErrArgs
 	}
 	fmt.Print(seperator)
 	return nil
 
+}
+
+func queryUser(s *state, headless bool) (database.User, error) {
+	if !headless {
+		fmt.Print(seperator, "Please enter a username to fetch the details of.\nPress enter to cancel\nUser ", prefix)
+	}
+INPUT:
+	name := cmdInput(s)
+	if name == "" {
+		return database.User{}, nil
+	}
+	user, err := s.db.GetUserByName(context.Background(), name)
+	if err == sql.ErrNoRows {
+		fmt.Printf("User [%s] not found. Try again?\nPlease check the capitalization and spelling\nUser > ", name)
+		goto INPUT
+	} else if err != nil {
+		return database.User{}, err
+	}
+	return user, nil
+}
+
+func resetUsers(s *state) error {
+	fmt.Print("Are you sure? (y/n)\n>")
+
+	if cmdConfirmation(s) {
+		return s.db.DeleteAllUsers(context.Background())
+	}
+
+	return nil
+}
+
+func removeUser(s *state) error {
+	fmt.Print("Please enter the user you want to remove\nPress enter to cancel\nUser ", prefix)
+	user, err := queryUser(s, true)
+	if err != nil {
+		return err
+	}
+	err = s.db.DeleteUser(context.Background(), user.Name)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("User [%s] has been removed from the database\n", user.Name)
+	if user.Name == s.cfg.CurrentUserName {
+		s.cfg.SetUser("")
+	}
+	return nil
 }
 
 func printUser(u database.User) {

@@ -1,5 +1,7 @@
 package main
 
+import "sort"
+
 type cliCommand struct {
 	name        string
 	description string
@@ -11,20 +13,20 @@ func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"help": {
 			name:        "help",
-			description: "Displays a list of all commands",
+			description: "Display a list of all commands",
 			usage:       "help",
 			callback:    commandHelp,
 		},
 		"exit": {
 			name:        "exit",
-			description: "Exits the program",
+			description: "Exit the program safely",
 			usage:       "exit",
 			callback:    commandExit,
 		},
 		"user": {
 			name:        "user",
-			description: "Switch to a new user or describe the current user",
-			usage:       "user [list|me]",
+			description: "\n\tQuery the database for a specific user if no arguments are used\n\tList all users\n\tDetail the current user\n\tReset the user table\n\tRemove a specified user from the database",
+			usage:       "user [list|me|reset|remove]",
 			callback:    commandUser,
 		},
 		"register": {
@@ -41,13 +43,13 @@ func getCommands() map[string]cliCommand {
 		},
 		"daily": {
 			name:        "daily",
-			description: "Enter data for a day",
+			description: "Enter data for today or a specified date",
 			usage:       "daily",
 			callback:    commandDaily,
 		},
 		"goals": {
 			name:        "goals",
-			description: "List all goals, highlighting achieved ones or list goals within a specific stat",
+			description: "\n\tList all goals, highlighting achieved ones for the current user if no arguments are used\n\tlist goals within a specific stat",
 			usage:       "goals [specific_stat]",
 			callback:    commandGoals,
 		},
@@ -78,9 +80,37 @@ func getCommands() map[string]cliCommand {
 	}
 }
 
+func getCommandsOrdered() []cliCommand {
+	cmds := getCommands()
+	var keys []string
+	for k := range cmds {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+	var ordered = []cliCommand{}
+	for _, k := range keys {
+		ordered = append(ordered, cmds[k])
+	}
+	return ordered
+}
+
 func altCommands() map[string]string {
 	return map[string]string{
 		"?":     "help",
 		"users": "user list",
 	}
+}
+
+func cmdConfirmation(s *state) bool {
+	s.in.Scan()
+	if s.in.Text() == "y" || s.in.Text() == "Y" {
+		return true
+	}
+	return false
+}
+
+func cmdInput(s *state) (string) {
+	s.in.Scan()
+	return s.in.Text()
 }

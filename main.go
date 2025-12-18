@@ -6,7 +6,6 @@ import (
 	"errors"
 	"log"
 	"os"
-	"time"
 
 	"github.com/archmagejay/excercise_pt/internal/config"
 	"github.com/archmagejay/excercise_pt/internal/database"
@@ -36,15 +35,21 @@ func main() {
 	if err := cfg.Validate(); err != nil {
 		switch err {
 		case config.ErrMissingUser:
-
-		case config.ErrDBURL:
-			log.Fatalln("Error with database connection")
+			fallthrough
 		case config.ErrTime:
+			break
+			//log.Println("!!! No user detected. Please run the <register> command !!!")
+		case config.ErrDBURL:
+			log.Fatal("Error with database connection")
 		default:
 			log.Fatalf("unknown error validating config: %v", err)
 		}
 	}
-	cfg.LastOpened = time.Now()
+	// Update the last accessed timestamp
+	err = cfg.SetTime()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Attempt to connect to the database
 	db, err := sql.Open("postgres", cfg.DBURL)
@@ -64,17 +69,16 @@ func main() {
 		db:  dbQueries,
 		cfg: cfg,
 		in:  bufio.NewScanner(os.Stdin),
-		l: l,
+		l:   l,
 	}
 
-	// If everything in initalized start the REPL interface
+	// If everything is initalized start the REPL interface
 	startRepl(s)
 }
 
-
 // Shut down the program gracefully
 func shutdown(s *state) {
-	s.Log(LogInfo, "Closing tracker... Goodbye!")
+	s.Log(LogInfo, "Closing tracker and saving config file to disk")
 
 	// Try to save the config file to disk
 	if err := s.cfg.SaveConfig(); err != nil {

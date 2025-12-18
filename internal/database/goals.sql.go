@@ -53,13 +53,13 @@ func (q *Queries) AddGoal(ctx context.Context, arg AddGoalParams) error {
 	return err
 }
 
-const deletaAllGoals = `-- name: DeletaAllGoals :exec
+const deleteAllGoals = `-- name: DeleteAllGoals :exec
 DELETE FROM goals
 `
 
 // Remove all entries from 'goals'
-func (q *Queries) DeletaAllGoals(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, deletaAllGoals)
+func (q *Queries) DeleteAllGoals(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteAllGoals)
 	return err
 }
 

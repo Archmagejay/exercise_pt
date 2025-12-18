@@ -61,6 +61,7 @@ func commandRegister(s *state, args ...string) error {
 	fmt.Print(seperator, "New user created: \n")
 	fmt.Printf("* Name: %s\n* Height: %d\n* Starting date: %v\n", u.Name, u.Height, u.StartDate.Format(time.DateOnly))
 	fmt.Print(seperator)
+	s.cfg.SetUser(name)
 	}
 	return nil
 }
