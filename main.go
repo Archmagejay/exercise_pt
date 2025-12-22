@@ -40,7 +40,7 @@ func main() {
 			break
 			//log.Println("!!! No user detected. Please run the <register> command !!!")
 		case config.ErrDBURL:
-			log.Fatal("Error with database connection")
+			log.Fatalf("Error with database connection: %v", err)
 		default:
 			log.Fatalf("unknown error validating config: %v", err)
 		}

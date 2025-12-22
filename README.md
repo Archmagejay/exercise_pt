@@ -13,7 +13,7 @@ A personal exercise metric tracker
 #### Functionality
 - [x] Register command
 - [x] User command
-- [ ] Goals command
+- [x] Goals command
 - [ ] Daily command
 
 #### CAPSTONE goals

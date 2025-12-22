@@ -12,7 +12,7 @@ import (
 
 const configDir = "Exercise_PT"
 const configFileName = "config.json"
-const db_url = "postgres://postgres:postgres@localhost:5432/exercise_pt"
+const db_url string = "postgres://postgres:postgres@localhost:5432/exercise_pt"
 
 var ErrMissingUser = errors.New("no user set")
 var ErrDBURL = errors.New("invalid database url")
@@ -28,7 +28,7 @@ type Config struct {
 
 // Write config file to disk
 func (cfg *Config) SaveConfig() error {
-	return write(*cfg)
+	return write(cfg)
 }
 
 // Read the config file into memory
@@ -49,18 +49,14 @@ func Read() (*Config, error) {
 	cfg := Config{}
 	err = decoder.Decode(&cfg)
 	if err == io.EOF {
-		err := write(Config{
-			DBURL:           db_url,
-			CurrentUserName: "",
-			LastOpened:      time.Now(),
-		})
-		if err != nil {
+		cfg.DBURL, cfg.LastOpened = db_url, time.Now()
+		err2 := write(&cfg)
+		if err2 != nil {
 			return nil, err
 		}
 	} else if err != nil {
 		return nil, err
 	}
-
 	return &cfg, nil
 }
 
@@ -82,7 +78,7 @@ func getConfigFilePath() (string, error) {
 }
 
 // Write the config file to disk
-func write(cfg Config) error {
+func write(cfg *Config) error {
 	fullPath, err := getConfigFilePath()
 	if err != nil {
 		return err
@@ -104,12 +100,13 @@ func write(cfg Config) error {
 
 // Validate the config file
 func (cfg *Config) Validate() error {
-
 	cfg.valid = false
 	cfg.errUser = false
 	cfg.errTime = false
 	cfg.daily = false
-
+	if cfg.DBURL != db_url {
+			return ErrDBURL
+		}
 	day, err := time.ParseDuration("24h")
 	if err != nil {
 		fmt.Println("Time package failed")
@@ -118,9 +115,6 @@ func (cfg *Config) Validate() error {
 	if cfg.CurrentUserName == "" {
 		cfg.errUser = true
 		return ErrMissingUser
-	}
-	if cfg.DBURL != db_url {
-		return ErrDBURL
 	}
 	if cfg.LastOpened.Before(time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)) {
 		cfg.errTime = true
@@ -135,13 +129,13 @@ func (cfg *Config) Validate() error {
 // Set the username of the current user in memory and then write to disk
 func (cfg *Config) SetUser(username string) error {
 	cfg.CurrentUserName = username
-	return write(*cfg)
+	return write(cfg)
 }
 
 // Set the last opened timestamp to now the write to disk
 func (cfg *Config) SetTime() error {
 	cfg.LastOpened = time.Now()
-	return write(*cfg)
+	return write(cfg)
 }
 
 // Check if the config was successfully validated

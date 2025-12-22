@@ -202,8 +202,8 @@ func printGoalDebug(g database.Goal, debug bool) error {
 	switch g.GoalType {
 	case database.GoalTypesBike:
 		fallthrough
-	case database.GoalTypesTreadmill: // Avg Speed
-		goal = g.GoalDecimal.String + " km/s"
+	case database.GoalTypesTreadmill: // distance
+		goal = g.GoalDecimal.String + " kms"
 	case database.GoalTypesWeight: // Kilograms
 		goal = g.GoalDecimal.String + " kg"
 	case database.GoalTypesParkRun:
