@@ -11,16 +11,17 @@ const (
 	welcome   = "Welcome to the Exercise Tracker!\n"
 	prefix    = "> "
 	//timestampFormat = "02/01/06 15:04:05"
-	noUserInCfg = "!!! No user detected. Please run the <register> command !!!"
+	noUserInCfg = "!!! No user detected. Please run the <register> command or <exit> to quit !!!"
 )
 
-var reservedInputs = map[string]struct{}{
+var badInputs = map[string]struct{}{
 	"":       {},
 	"cancel": {},
 	"y":      {},
 	"Y":      {},
 	"n":      {},
 	"N":      {},
+	"exit":   {},
 }
 
 // The main REPL CLI function

@@ -1,9 +1,9 @@
 # Other
 scratchpad.md
-davids_goals.json
 
 # Generated
 log.txt
 
 # Testing
 *.sh
+*_test.go
