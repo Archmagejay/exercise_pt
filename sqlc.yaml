@@ -13,6 +13,12 @@ sql:
             go_type:
               import: "github.com/google/uuid"
               type: "UUID"
+          - column: "entries.plank_dur"
+            nullable: true
+            go_type: "database/sql.NullString"
+          - column: "entries.park_run"
+            nullable: true
+            go_type: "database/sql.NullString"
           - column: "goals.goal_dur"
             nullable: true
             go_type: "database/sql.NullString"

@@ -102,7 +102,7 @@ func removeUser(s *state) error {
 	}
 	fmt.Printf("User [%s] has been removed from the database\n", user.Name)
 	if user.Name == s.cfg.CurrentUserName {
-		s.cfg.SetUser("")
+		s.cfg.SetUser(database.User{})
 	}
 	return nil
 }

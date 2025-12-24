@@ -24,6 +24,22 @@ var badInputs = map[string]struct{}{
 	"exit":   {},
 }
 
+var pcArr = []string{
+	"Bench Press",
+	"Bisep Curls",
+	"Lateral Pulldown",
+	"Pectoral Fly",
+	"Quad Curls",
+	"Trapezius Lift",
+	"Trisep Curls",
+}
+
+var tierMap = map[int32]string{
+	0: "Ok",
+	1: "Good",
+	2: "Great",
+	3: "Superb",
+}
 // The main REPL CLI function
 func startRepl(s *state) {
 	s.Log(LogInfo, "Program started")

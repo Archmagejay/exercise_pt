@@ -30,7 +30,7 @@ func commandRegister(s *state, args ...string) error {
 	} else {
 		fmt.Printf("user [%s] already registered, load user [%s]? (y/n)\n> ", u.Name, u.Name)
 		if cmdConfirmation(s) {
-			s.cfg.SetUser(u.Name)
+			s.cfg.SetUser(u)
 			fmt.Printf("%sWelcome back [%s]\n%s", seperator, u.Name, seperator)
 			return nil
 		}
@@ -66,7 +66,7 @@ func commandRegister(s *state, args ...string) error {
 	fmt.Print(seperator, "New user created: \n")
 	fmt.Printf("* Name: %s\n* Height: %d\n* Starting date: %v\n", u.Name, u.Height, u.StartDate.Format(time.DateOnly))
 	fmt.Print(seperator)
-	s.cfg.SetUser(name)
+	s.cfg.SetUser(u)
 	}
 	return nil
 }

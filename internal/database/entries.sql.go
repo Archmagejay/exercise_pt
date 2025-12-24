@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,23 +24,25 @@ INSERT INTO entries (
     plate_count,
     plank_dur,
     weight,
-    waist
+    waist,
+    park_run
 ) VALUES (
-    $1,$2,$3,$4,$5,$6,$7,$8,$9
+    $1,$2,$3,$4,$5,$6,$7,$8,$9,$10
 )
-RETURNING id, user_id, date, cardio, cardio_type, plate_count, plank_dur, weight, waist
+RETURNING id, user_id, date, cardio, cardio_type, plate_count, plank_dur, weight, waist, park_run
 `
 
 type AddEntryParams struct {
-	ID         uuid.UUID `json:"id"`
-	UserID     uuid.UUID `json:"user_id"`
-	Date       time.Time `json:"date"`
-	Cardio     string    `json:"cardio"`
-	CardioType bool      `json:"cardio_type"`
-	PlateCount []int32   `json:"plate_count"`
-	PlankDur   int64     `json:"plank_dur"`
-	Weight     string    `json:"weight"`
-	Waist      string    `json:"waist"`
+	ID         uuid.UUID      `json:"id"`
+	UserID     uuid.UUID      `json:"user_id"`
+	Date       time.Time      `json:"date"`
+	Cardio     string         `json:"cardio"`
+	CardioType bool           `json:"cardio_type"`
+	PlateCount []int32        `json:"plate_count"`
+	PlankDur   sql.NullString `json:"plank_dur"`
+	Weight     string         `json:"weight"`
+	Waist      string         `json:"waist"`
+	ParkRun    sql.NullString `json:"park_run"`
 }
 
 // Add a new entry to 'entries
@@ -54,6 +57,7 @@ func (q *Queries) AddEntry(ctx context.Context, arg AddEntryParams) (Entry, erro
 		arg.PlankDur,
 		arg.Weight,
 		arg.Waist,
+		arg.ParkRun,
 	)
 	var i Entry
 	err := row.Scan(
@@ -66,8 +70,57 @@ func (q *Queries) AddEntry(ctx context.Context, arg AddEntryParams) (Entry, erro
 		&i.PlankDur,
 		&i.Weight,
 		&i.Waist,
+		&i.ParkRun,
 	)
 	return i, err
+}
+
+const getLatestEntryTimestampForUser = `-- name: GetLatestEntryTimestampForUser :one
+SELECT date FROM entries
+WHERE user_id = $1
+ORDER BY date DESC
+LIMIT 1
+`
+
+// Get the timestamp for the latest entry by the specified user from 'entries
+func (q *Queries) GetLatestEntryTimestampForUser(ctx context.Context, userID uuid.UUID) (time.Time, error) {
+	row := q.db.QueryRowContext(ctx, getLatestEntryTimestampForUser, userID)
+	var date time.Time
+	err := row.Scan(&date)
+	return date, err
+}
+
+const getLatestPlateCountForUser = `-- name: GetLatestPlateCountForUser :one
+SELECT plate_count
+FROM entries
+WHERE user_id = $1
+ORDER BY date DESC
+LIMIT 1
+`
+
+// Get the latest plate count for a specified user (Bench Press, L)
+func (q *Queries) GetLatestPlateCountForUser(ctx context.Context, userID uuid.UUID) ([]int32, error) {
+	row := q.db.QueryRowContext(ctx, getLatestPlateCountForUser, userID)
+	var plate_count []int32
+	err := row.Scan(pq.Array(&plate_count))
+	return plate_count, err
+}
+
+const getLatestWeeklyDataTimestampForUser = `-- name: GetLatestWeeklyDataTimestampForUser :one
+SELECT date
+FROM entries
+WHERE user_id = $1
+AND weight IS NOT NULL
+AND waist IS NOT NULL
+LIMIT 1
+`
+
+// Get the timestamp for the latest entry that has a non null weekly value (weight, waist)
+func (q *Queries) GetLatestWeeklyDataTimestampForUser(ctx context.Context, userID uuid.UUID) (time.Time, error) {
+	row := q.db.QueryRowContext(ctx, getLatestWeeklyDataTimestampForUser, userID)
+	var date time.Time
+	err := row.Scan(&date)
+	return date, err
 }
 
 const resetTable = `-- name: ResetTable :exec

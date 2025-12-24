@@ -33,3 +33,21 @@ WHERE goal_tier = $1;
 -- name: DeleteAllGoals :exec
 -- Remove all entries from 'goals'
 DELETE FROM goals;
+
+-- name: GetAllGoalIDs :many
+-- Get all goal ids from 'goals'
+SELECT id FROM goals;
+
+-- name: GetNextGoalTier :one
+-- Get the next tier of goals for a specified type and tier
+SELECT *
+FROM goals
+WHERE goal_type = $1
+AND goal_tier = $2
+LIMIT 1;
+
+-- name: GetGoalTierByID :one
+-- Get the tier of the specified goal
+SELECT goal_tier 
+FROM goals
+WHERE id = $1;

@@ -67,15 +67,16 @@ func (ns NullGoalTypes) Value() (driver.Value, error) {
 }
 
 type Entry struct {
-	ID         uuid.UUID `json:"id"`
-	UserID     uuid.UUID `json:"user_id"`
-	Date       time.Time `json:"date"`
-	Cardio     string    `json:"cardio"`
-	CardioType bool      `json:"cardio_type"`
-	PlateCount []int32   `json:"plate_count"`
-	PlankDur   int64     `json:"plank_dur"`
-	Weight     string    `json:"weight"`
-	Waist      string    `json:"waist"`
+	ID         uuid.UUID      `json:"id"`
+	UserID     uuid.UUID      `json:"user_id"`
+	Date       time.Time      `json:"date"`
+	Cardio     string         `json:"cardio"`
+	CardioType bool           `json:"cardio_type"`
+	PlateCount []int32        `json:"plate_count"`
+	PlankDur   sql.NullString `json:"plank_dur"`
+	Weight     string         `json:"weight"`
+	Waist      string         `json:"waist"`
+	ParkRun    sql.NullString `json:"park_run"`
 }
 
 type Goal struct {

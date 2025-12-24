@@ -63,6 +63,34 @@ func (q *Queries) DeleteAllGoals(ctx context.Context) error {
 	return err
 }
 
+const getAllGoalIDs = `-- name: GetAllGoalIDs :many
+SELECT id FROM goals
+`
+
+// Get all goal ids from 'goals'
+func (q *Queries) GetAllGoalIDs(ctx context.Context) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getAllGoalIDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAllGoals = `-- name: GetAllGoals :many
 SELECT id, goal_type, goal_plate_count, goal_dur, goal_decimal, goal_number, goal_tier FROM goals
 `
@@ -97,6 +125,20 @@ func (q *Queries) GetAllGoals(ctx context.Context) ([]Goal, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getGoalTierByID = `-- name: GetGoalTierByID :one
+SELECT goal_tier 
+FROM goals
+WHERE id = $1
+`
+
+// Get the tier of the specified goal
+func (q *Queries) GetGoalTierByID(ctx context.Context, id uuid.UUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, getGoalTierByID, id)
+	var goal_tier int32
+	err := row.Scan(&goal_tier)
+	return goal_tier, err
 }
 
 const getGoalsByTier = `-- name: GetGoalsByTier :many
@@ -173,4 +215,33 @@ func (q *Queries) GetGoalsByType(ctx context.Context, goalType GoalTypes) ([]Goa
 		return nil, err
 	}
 	return items, nil
+}
+
+const getNextGoalTier = `-- name: GetNextGoalTier :one
+SELECT id, goal_type, goal_plate_count, goal_dur, goal_decimal, goal_number, goal_tier
+FROM goals
+WHERE goal_type = $1
+AND goal_tier = $2
+LIMIT 1
+`
+
+type GetNextGoalTierParams struct {
+	GoalType GoalTypes `json:"goal_type"`
+	GoalTier int32     `json:"goal_tier"`
+}
+
+// Get the next tier of goals for a specified type and tier
+func (q *Queries) GetNextGoalTier(ctx context.Context, arg GetNextGoalTierParams) (Goal, error) {
+	row := q.db.QueryRowContext(ctx, getNextGoalTier, arg.GoalType, arg.GoalTier)
+	var i Goal
+	err := row.Scan(
+		&i.ID,
+		&i.GoalType,
+		pq.Array(&i.GoalPlateCount),
+		&i.GoalDur,
+		&i.GoalDecimal,
+		&i.GoalNumber,
+		&i.GoalTier,
+	)
+	return i, err
 }

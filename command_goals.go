@@ -21,21 +21,7 @@ type json_goals []struct {
 	GoalInt        []int32   `json:"goal_number,omitempty"`
 }
 
-var tierMap = map[int32]string{
-	0: "Ok",
-	1: "Good",
-	2: "Great",
-	3: "Superb",
-}
-var pcArr = []string{
-	"Bench Press",
-	"Bisep Curls",
-	"Lateral Pulldown",
-	"Pectoral Fly",
-	"Quad Curls",
-	"Trapezius Lift",
-	"Trisep Curls",
-}
+
 
 func commandGoals(s *state, args ...string) error {
 	if len(args) > 0 && args[0] != "" {
@@ -195,18 +181,18 @@ func printGoalDebug(g database.Goal, debug bool) error {
 		fmt.Printf("%s* Type: %s\n", seperator, g.GoalType)
 	}
 
-	fmt.Printf("* Tier: %s\t", tierMap[g.GoalTier])
+	fmt.Printf("* Tier #%d: %s\t", g.GoalTier, tierMap[g.GoalTier])
 	var plates bool
 	var goal, postfix string
 
 	switch g.GoalType {
-	case database.GoalTypesBike:
+	case database.GoalTypesBike: // Distance
 		fallthrough
-	case database.GoalTypesTreadmill: // distance
+	case database.GoalTypesTreadmill: // Distance
 		goal = g.GoalDecimal.String + " kms"
 	case database.GoalTypesWeight: // Kilograms
 		goal = g.GoalDecimal.String + " kg"
-	case database.GoalTypesParkRun:
+	case database.GoalTypesParkRun: // Duration
 		fallthrough
 	case database.GoalTypesPlank: // Duration
 		time := strings.Split(g.GoalDur.String, ":")

@@ -3,11 +3,13 @@ package config
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/archmagejay/excercise_pt/internal/database"
+	"github.com/google/uuid"
 )
 
 const configDir = "Exercise_PT"
@@ -23,6 +25,7 @@ type Config struct {
 	CurrentUserName                 string    `json:"current_user_name"`
 	LastOpened                      time.Time `json:"last_opened"`
 	valid, errUser, errTime, daily bool
+	currentUserUUID uuid.UUID
 }
 
 
@@ -107,11 +110,6 @@ func (cfg *Config) Validate() error {
 	if cfg.DBURL != db_url {
 			return ErrDBURL
 		}
-	day, err := time.ParseDuration("24h")
-	if err != nil {
-		fmt.Println("Time package failed")
-		return ErrTime
-	}
 	if cfg.CurrentUserName == "" {
 		cfg.errUser = true
 		return ErrMissingUser
@@ -119,7 +117,7 @@ func (cfg *Config) Validate() error {
 	if cfg.LastOpened.Before(time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)) {
 		cfg.errTime = true
 		return ErrTime
-	} else if cfg.LastOpened.Before(time.Now().Local().Add(-day)) {
+	} else if cfg.LastOpened.Before(time.Now().AddDate(0,0,-1)) {
 		cfg.daily = true
 	}
 	cfg.valid = true
@@ -127,9 +125,25 @@ func (cfg *Config) Validate() error {
 }
 
 // Set the username of the current user in memory and then write to disk
-func (cfg *Config) SetUser(username string) error {
-	cfg.CurrentUserName = username
+func (cfg *Config) SetUser(user database.User) error {
+	cfg.CurrentUserName = user.Name
+	cfg.currentUserUUID = user.ID
 	return write(cfg)
+}
+
+// Get the current usermame and id from memory
+func (cfg *Config) GetUser() (string, uuid.UUID) {
+	return cfg.CurrentUserName, cfg.currentUserUUID
+}
+
+// Get the current username from memory
+func (cfg *Config) GetUserName() (string) {
+	return cfg.CurrentUserName
+}
+
+// Get the current user ID from memory
+func (cfg *Config) GetUserID() (uuid.UUID) {
+	return cfg.currentUserUUID
 }
 
 // Set the last opened timestamp to now the write to disk

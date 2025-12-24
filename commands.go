@@ -1,6 +1,11 @@
 package main
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+
+	"github.com/archmagejay/excercise_pt/internal/database"
+)
 
 type cliCommand struct {
 	name        string
@@ -35,12 +40,6 @@ func getCommands() map[string]cliCommand {
 			usage:       "register",
 			callback:    commandRegister,
 		},
-		"graph": {
-			name:        "graph",
-			description: "Graph available data",
-			usage:       "graph <all|[specific_stat]>",
-			callback:    commandGraph,
-		},
 		"daily": {
 			name:        "daily",
 			description: "Enter data for today or a specified date",
@@ -52,6 +51,13 @@ func getCommands() map[string]cliCommand {
 			description: "List all goals, highlighting achieved ones for the current user if no arguments are used\n\tlist goals within a specific stat",
 			usage:       "goals [specific_stat]",
 			callback:    commandGoals,
+		},
+		/*
+		"graph": {
+			name:        "graph",
+			description: "Graph available data",
+			usage:       "graph <all|[specific_stat]>",
+			callback:    commandGraph,
 		},
 		"export": {
 			name:        "export",
@@ -71,12 +77,12 @@ func getCommands() map[string]cliCommand {
 			usage:       "change <date>",
 			callback:    commandChange,
 		},
-		"clear": {
+		 "clear": {
 			name:        "clear",
 			description: "Clear the screen",
 			usage:       "clear",
 			callback:    commandClear,
-		},
+		}, */
 	}
 }
 
@@ -113,4 +119,9 @@ func cmdConfirmation(s *state) bool {
 func cmdInput(s *state) (string) {
 	s.in.Scan()
 	return s.in.Text()
+}
+
+
+func congratulate(database.Goal) {
+	fmt.Println("Not yet implemented")
 }
