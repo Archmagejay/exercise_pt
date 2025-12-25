@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"os"
+	"time"
 
-	"github.com/archmagejay/excercise_pt/internal/config"
-	"github.com/archmagejay/excercise_pt/internal/database"
+	"github.com/archmagejay/exercise_pt/internal/config"
+	"github.com/archmagejay/exercise_pt/internal/database"
 
 	_ "github.com/lib/pq"
 )
@@ -83,7 +85,11 @@ func shutdown(s *state) {
 	// Try to save the config file to disk
 	if err := s.cfg.SaveConfig(); err != nil {
 		s.Log(LogError, err)
+		os.Exit(1)
 	}
 
+	fmt.Println("Config saved successfuly. Shutting down program...")
+	time.Sleep(time.Second * 3)
+	
 	os.Exit(0)
 }

@@ -1,8 +1,8 @@
-module github.com/archmagejay/excercise_pt
+module github.com/archmagejay/exercise_pt
 
-go 1.25.0
+go 1.25.5
 
 require (
-    github.com/google/uuid v1.6.0
-    github.com/lib/pq v1.10.9
+	github.com/google/uuid v1.6.0
+	github.com/lib/pq v1.10.9
 )
