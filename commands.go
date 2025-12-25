@@ -121,6 +121,9 @@ func cmdInput(s *state) (string) {
 	return s.in.Text()
 }
 
+func cmdCancel(s string) bool {
+	return s == ""
+}
 
 func congratulate(database.Goal) {
 	fmt.Println("Not yet implemented")

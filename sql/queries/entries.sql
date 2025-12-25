@@ -43,3 +43,9 @@ FROM entries
 WHERE user_id = $1
 ORDER BY date DESC
 LIMIT 1;
+
+-- name: GetAllEntriesForUser :many
+-- Get all the entries for a specified user ordered by ascending date
+SELECT *
+FROM entries
+WHERE user_id = $1;

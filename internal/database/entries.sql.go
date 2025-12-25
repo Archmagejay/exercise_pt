@@ -75,6 +75,47 @@ func (q *Queries) AddEntry(ctx context.Context, arg AddEntryParams) (Entry, erro
 	return i, err
 }
 
+const getAllEntriesForUser = `-- name: GetAllEntriesForUser :many
+SELECT id, user_id, date, cardio, cardio_type, plate_count, plank_dur, weight, waist, park_run
+FROM entries
+WHERE user_id = $1
+`
+
+// Get all the entries for a specified user ordered by ascending date
+func (q *Queries) GetAllEntriesForUser(ctx context.Context, userID uuid.UUID) ([]Entry, error) {
+	rows, err := q.db.QueryContext(ctx, getAllEntriesForUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Entry
+	for rows.Next() {
+		var i Entry
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Date,
+			&i.Cardio,
+			&i.CardioType,
+			pq.Array(&i.PlateCount),
+			&i.PlankDur,
+			&i.Weight,
+			&i.Waist,
+			&i.ParkRun,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLatestEntryTimestampForUser = `-- name: GetLatestEntryTimestampForUser :one
 SELECT date FROM entries
 WHERE user_id = $1
