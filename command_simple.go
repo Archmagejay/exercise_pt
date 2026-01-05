@@ -17,7 +17,3 @@ func commandExit(s *state, args ...string) error {
 	shutdown(s)
 	return nil
 }
-
-func commandClear(s *state, args ...string) error {
-	return ErrNotImplemented
-}

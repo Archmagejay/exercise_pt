@@ -107,25 +107,34 @@ PARK_RUN:
 	}
 
 	// Ask what type of cardio
-	//CARDIO:
+	CARDIO:
+	cardioStr := "\tTreadmill"
 	fmt.Print("Did you use the treadmill? (y/n) > ")
-	entry.CardioType = !cmdConfirmation(s)
-	// TODO: Clean this up
-	/* if cmdConfirmation(s) {
+	if cmdConfirmation(s) {
 		entry.CardioType = false
 	} else {
-		fmt.Println("The bike? (y/n) > ")
+		fmt.Print("The bike? (y/n) > ")
 		if cmdConfirmation(s) {
 			entry.CardioType = true
-			goto PLANK
 		} else {
-			fmt.Println("No cardio then? (y/n)\ndaily > ")
+			fmt.Print("No cardio then? (y/n) > ")
 			if cmdConfirmation(s) {
 				entry.CardioType = false
 				entry.Cardio = ""
+				goto PLANK
 			}
 		}
-	} */
+	}
+	fmt.Print("What distance in kilometers did you manage to achieve? <##.##>")
+	entry.Cardio = cmdInput(s)
+	if entry.CardioType{
+		cardioStr = "\tBike"
+	}
+	fmt.Printf("Are these fields correct?\n\tCardio Type: %s\n\tCardio duration: %s", cardioStr, entry.Cardio)
+
+	if !cmdConfirmation(s) {
+		goto CARDIO
+	}
 
 	// Ask for plank duration
 PLANK:

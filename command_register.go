@@ -12,7 +12,7 @@ import (
 )
 
 func commandRegister(s *state, args ...string) error {
-	NAME:
+NAME:
 	fmt.Println("Please enter your desired username\nPress enter to cancel")
 
 	fmt.Print("register/username > ")
@@ -44,7 +44,7 @@ func commandRegister(s *state, args ...string) error {
 
 	fmt.Println("Please enter your height in centimeters")
 
-	HEIGHT:
+HEIGHT:
 	fmt.Print("register/height > ")
 	s.in.Scan()
 	height, err := strconv.ParseInt(s.in.Text(), 10, 32)
@@ -54,19 +54,20 @@ func commandRegister(s *state, args ...string) error {
 	}
 
 	user := database.NewUserParams{
-		ID: uuid.New(),
-		Name: name,
-		Height: int32(height),
+		ID:        uuid.New(),
+		Name:      name,
+		Height:    int32(height),
 		StartDate: time.Now(),
 	}
 
 	if u, err := s.db.NewUser(context.Background(), user); err != nil {
 		s.Log(LogError, err)
 	} else {
-	fmt.Print(seperator, "New user created: \n")
-	fmt.Printf("* Name: %s\n* Height: %d\n* Starting date: %v\n", u.Name, u.Height, u.StartDate.Format(time.DateOnly))
-	fmt.Print(seperator)
-	s.cfg.SetUser(u)
+		fmt.Print(seperator, "New user created: \n")
+		fmt.Printf("* Name: %s\n* Height: %d\n* Starting date: %v\n", u.Name, u.Height, u.StartDate.Format(time.DateOnly))
+		fmt.Print(seperator)
+		s.cfg.SetUser(u)
+		fmt.Println("Use the <help> command for a list of commands")
 	}
 	return nil
 }
