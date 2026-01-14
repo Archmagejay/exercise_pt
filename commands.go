@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/archmagejay/exercise_pt/internal/database"
+	"github.com/Archmagejay/exercise_pt/internal/database"
 )
 
 type cliCommand struct {
@@ -53,36 +53,36 @@ func getCommands() map[string]cliCommand {
 			callback:    commandGoals,
 		},
 		/*
-		"graph": {
-			name:        "graph",
-			description: "Graph available data",
-			usage:       "graph <all|[specific_stat]>",
-			callback:    commandGraph,
-		},
-		"export": {
-			name:        "export",
-			description: "Export the database",
-			usage:       "export [user]",
-			callback:    commandExport,
-		},
-		"import": {
-			name:        "import",
-			description: "Import a database",
-			usage:       "import <file_name>",
-			callback:    commandImport,
-		},
-		"change": {
-			name:        "change",
-			description: "Change a saved value",
-			usage:       "change <date>",
-			callback:    commandChange,
-		},
-		 "clear": {
-			name:        "clear",
-			description: "Clear the screen",
-			usage:       "clear",
-			callback:    commandClear,
-		}, */
+			"graph": {
+				name:        "graph",
+				description: "Graph available data",
+				usage:       "graph <all|[specific_stat]>",
+				callback:    commandGraph,
+			},
+			"export": {
+				name:        "export",
+				description: "Export the database",
+				usage:       "export [user]",
+				callback:    commandExport,
+			},
+			"import": {
+				name:        "import",
+				description: "Import a database",
+				usage:       "import <file_name>",
+				callback:    commandImport,
+			},
+			"change": {
+				name:        "change",
+				description: "Change a saved value",
+				usage:       "change <date>",
+				callback:    commandChange,
+			},
+			 "clear": {
+				name:        "clear",
+				description: "Clear the screen",
+				usage:       "clear",
+				callback:    commandClear,
+			}, */
 	}
 }
 
@@ -116,7 +116,7 @@ func cmdConfirmation(s *state) bool {
 	return false
 }
 
-func cmdInput(s *state) (string) {
+func cmdInput(s *state) string {
 	s.in.Scan()
 	return s.in.Text()
 }

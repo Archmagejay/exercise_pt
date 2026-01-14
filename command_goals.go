@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/archmagejay/exercise_pt/internal/database"
+	"github.com/Archmagejay/exercise_pt/internal/database"
 	"github.com/google/uuid"
 )
 
@@ -20,8 +20,6 @@ type json_goals []struct {
 	GoalDecimal    []string  `json:"goal_decimal,omitempty"`
 	GoalInt        []int32   `json:"goal_number,omitempty"`
 }
-
-
 
 func commandGoals(s *state, args ...string) error {
 	if len(args) > 0 && args[0] != "" {

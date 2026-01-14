@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/archmagejay/exercise_pt/internal/database"
+	"github.com/Archmagejay/exercise_pt/internal/database"
 	"github.com/google/uuid"
 )
 

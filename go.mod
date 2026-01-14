@@ -1,4 +1,4 @@
-module github.com/archmagejay/exercise_pt
+module github.com/Archmagejay/exercise_pt
 
 go 1.25.5
 

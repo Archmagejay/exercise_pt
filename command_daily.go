@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/archmagejay/exercise_pt/internal/database"
+	"github.com/Archmagejay/exercise_pt/internal/database"
 	"github.com/google/uuid"
 )
 
@@ -113,7 +113,7 @@ PARK_RUN:
 	}
 
 	// Ask what type of cardio
-	CARDIO:
+CARDIO:
 	cardioStr := "\tTreadmill"
 	fmt.Print("Did you use the treadmill? (y/n) > ")
 	if cmdConfirmation(s) {
@@ -237,7 +237,7 @@ WEIGHTS:
 
 	dbentry, err := s.db.AddEntry(context.Background(), entry)
 	if err != nil {
-		s.Log(LogError,	fmt.Sprint(dbentry))
+		s.Log(LogError, fmt.Sprint(dbentry))
 		s.Log(LogError, fmt.Sprint(entry))
 		return err
 	}

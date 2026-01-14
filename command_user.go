@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/archmagejay/exercise_pt/internal/database"
+	"github.com/Archmagejay/exercise_pt/internal/database"
 )
 
 func commandUser(s *state, args ...string) error {

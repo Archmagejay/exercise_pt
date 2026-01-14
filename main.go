@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/archmagejay/exercise_pt/internal/config"
-	"github.com/archmagejay/exercise_pt/internal/database"
+	"github.com/Archmagejay/exercise_pt/internal/config"
+	"github.com/Archmagejay/exercise_pt/internal/database"
 
 	_ "github.com/lib/pq"
 )
@@ -90,6 +90,6 @@ func shutdown(s *state) {
 
 	fmt.Println("Config saved successfuly. Shutting down program...")
 	time.Sleep(time.Second * 3)
-	
+
 	os.Exit(0)
 }

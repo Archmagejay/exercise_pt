@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/archmagejay/exercise_pt/internal/database"
+	"github.com/Archmagejay/exercise_pt/internal/database"
 	"github.com/google/uuid"
 )
 
@@ -20,14 +20,14 @@ var ErrMissingUser = errors.New("no user set")
 var ErrDBURL = errors.New("invalid database url")
 var ErrTime = errors.New("time not initialized")
 var ErrUUID = errors.New("invalid uuid")
+
 type Config struct {
-	DBURL                           string    `json:"db_url"`
-	CurrentUserName                 string    `json:"current_user_name"`
-	LastOpened                      time.Time `json:"last_opened"`
-	CurrentUserUUID uuid.UUID `json:"user_uuid"`
+	DBURL                                string    `json:"db_url"`
+	CurrentUserName                      string    `json:"current_user_name"`
+	LastOpened                           time.Time `json:"last_opened"`
+	CurrentUserUUID                      uuid.UUID `json:"user_uuid"`
 	valid, errUser, errTime, daily, uuid bool
 }
-
 
 // Write config file to disk
 func (cfg *Config) SaveConfig() error {
@@ -108,8 +108,8 @@ func (cfg *Config) Validate() error {
 	cfg.errTime = false
 	cfg.daily = false
 	if cfg.DBURL != db_url {
-			return ErrDBURL
-		}
+		return ErrDBURL
+	}
 	if cfg.CurrentUserName == "" {
 		cfg.errUser = true
 		return ErrMissingUser
@@ -117,7 +117,7 @@ func (cfg *Config) Validate() error {
 	if cfg.LastOpened.Before(time.Date(2025, 1, 1, 0, 0, 0, 0, time.Local)) {
 		cfg.errTime = true
 		return ErrTime
-	} else if cfg.LastOpened.Before(time.Now().AddDate(0,0,-1)) {
+	} else if cfg.LastOpened.Before(time.Now().AddDate(0, 0, -1)) {
 		cfg.daily = true
 	}
 	if cfg.CurrentUserUUID == uuid.Nil {
@@ -141,12 +141,12 @@ func (cfg *Config) GetUser() (string, uuid.UUID) {
 }
 
 // Get the current username from memory
-func (cfg *Config) GetUserName() (string) {
+func (cfg *Config) GetUserName() string {
 	return cfg.CurrentUserName
 }
 
 // Get the current user ID from memory
-func (cfg *Config) GetUserID() (uuid.UUID) {
+func (cfg *Config) GetUserID() uuid.UUID {
 	return cfg.CurrentUserUUID
 }
 
