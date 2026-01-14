@@ -14,7 +14,7 @@ import (
 
 const configDir = "Exercise_PT"
 const configFileName = "config.json"
-const db_url string = "postgres://postgres:postgres@localhost:5432/exercise_pt"
+const db_url string = "postgres://postgres:postgres@localhost:5432/exercise_pt?sslmode=disable"
 
 var ErrMissingUser = errors.New("no user set")
 var ErrDBURL = errors.New("invalid database url")
