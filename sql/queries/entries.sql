@@ -34,10 +34,11 @@ FROM entries
 WHERE user_id = $1
 AND weight IS NOT NULL
 AND waist IS NOT NULL
+ORDER BY date DESC
 LIMIT 1;
 
 -- name: GetLatestPlateCountForUser :one
--- Get the latest plate count for a specified user (Bench Press, L)
+-- Get the latest plate count for a specified user (All types)
 SELECT plate_count
 FROM entries
 WHERE user_id = $1

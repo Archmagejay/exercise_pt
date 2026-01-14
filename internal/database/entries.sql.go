@@ -37,7 +37,7 @@ type AddEntryParams struct {
 	UserID     uuid.UUID      `json:"user_id"`
 	Date       time.Time      `json:"date"`
 	Cardio     string         `json:"cardio"`
-	CardioType bool           `json:"cardio_type"`
+	CardioType sql.NullBool   `json:"cardio_type"`
 	PlateCount []int32        `json:"plate_count"`
 	PlankDur   sql.NullString `json:"plank_dur"`
 	Weight     string         `json:"weight"`
@@ -139,7 +139,7 @@ ORDER BY date DESC
 LIMIT 1
 `
 
-// Get the latest plate count for a specified user (Bench Press, L)
+// Get the latest plate count for a specified user (All types)
 func (q *Queries) GetLatestPlateCountForUser(ctx context.Context, userID uuid.UUID) ([]int32, error) {
 	row := q.db.QueryRowContext(ctx, getLatestPlateCountForUser, userID)
 	var plate_count []int32
@@ -153,6 +153,7 @@ FROM entries
 WHERE user_id = $1
 AND weight IS NOT NULL
 AND waist IS NOT NULL
+ORDER BY date DESC
 LIMIT 1
 `
 

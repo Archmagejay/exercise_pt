@@ -71,7 +71,7 @@ type Entry struct {
 	UserID     uuid.UUID      `json:"user_id"`
 	Date       time.Time      `json:"date"`
 	Cardio     string         `json:"cardio"`
-	CardioType bool           `json:"cardio_type"`
+	CardioType sql.NullBool   `json:"cardio_type"`
 	PlateCount []int32        `json:"plate_count"`
 	PlankDur   sql.NullString `json:"plank_dur"`
 	Weight     string         `json:"weight"`

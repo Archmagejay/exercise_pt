@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -22,21 +23,28 @@ NAME:
 		return nil
 	}
 	if _, ok := badInputs[name]; ok {
-		fmt.Print("That name is blacklisted, try again\n")
+		fmt.Print("That name is blacklisted, please try another\n")
 		goto NAME
 	}
 	if u, err := s.db.GetUserByName(context.Background(), name); err != nil {
-		s.Log(LogError, err)
+		if err == sql.ErrNoRows {
+			s.Log(LogInfo, "No user found using that name proceeding with new user registration")
+		} else {
+			s.Log(LogError, "Querry failed for name")
+			return err
+		}
 	} else {
 		fmt.Printf("user [%s] already registered, load user [%s]? (y/n)\n> ", u.Name, u.Name)
 		if cmdConfirmation(s) {
 			s.cfg.SetUser(u)
 			fmt.Printf("%sWelcome back [%s]\n%s", seperator, u.Name, seperator)
 			return nil
+		} else {
+			goto NAME
 		}
-		goto NAME
 	}
-	fmt.Printf("Is %s your desired username? (y/n)\n > ", name)
+
+	fmt.Printf("Is %s your desired username? (y/n) > ", name)
 	s.in.Scan()
 	if strings.ToLower(s.in.Text()) != "y" {
 		goto NAME
@@ -61,10 +69,11 @@ HEIGHT:
 	}
 
 	if u, err := s.db.NewUser(context.Background(), user); err != nil {
-		s.Log(LogError, err)
+		s.Log(LogError, "Failed to add new user")
+		return err
 	} else {
 		fmt.Print(seperator, "New user created: \n")
-		fmt.Printf("* Name: %s\n* Height: %d\n* Starting date: %v\n", u.Name, u.Height, u.StartDate.Format(time.DateOnly))
+		fmt.Printf("* Name: %s\n* Height: %dcm\n* Starting date: %v\n", u.Name, u.Height, u.StartDate.Format(time.DateOnly))
 		fmt.Print(seperator)
 		s.cfg.SetUser(u)
 		fmt.Println("Use the <help> command for a list of commands")

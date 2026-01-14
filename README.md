@@ -4,17 +4,17 @@ A personal exercise metric tracker
 
 ### TODO
 - Things to track and graph
-    - [ ] Cardio - Daily
-    - [ ] Weight - Weekly
+    - [x] Cardio - Daily
+    - [x] Weight - Fortnightly
+    - [x] Waist circumference - Fortnightly
     - [ ] BMI - Derived from weight and height
-    - [ ] Waist circumference - Weekly
     - [ ] Strength - Avg daily
 
 #### Functionality
 - [x] Register command
 - [x] User command
 - [x] Goals command
-- [ ] Daily command
+- [x] Daily command
 
 #### CAPSTONE goals
 - [ ] Arrow key command history

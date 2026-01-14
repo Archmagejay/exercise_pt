@@ -19,13 +19,13 @@ const db_url string = "postgres://postgres:postgres@localhost:5432/exercise_pt"
 var ErrMissingUser = errors.New("no user set")
 var ErrDBURL = errors.New("invalid database url")
 var ErrTime = errors.New("time not initialized")
-
+var ErrUUID = errors.New("invalid uuid")
 type Config struct {
 	DBURL                           string    `json:"db_url"`
 	CurrentUserName                 string    `json:"current_user_name"`
 	LastOpened                      time.Time `json:"last_opened"`
-	valid, errUser, errTime, daily bool
-	currentUserUUID uuid.UUID
+	CurrentUserUUID uuid.UUID `json:"user_uuid"`
+	valid, errUser, errTime, daily, uuid bool
 }
 
 
@@ -120,6 +120,10 @@ func (cfg *Config) Validate() error {
 	} else if cfg.LastOpened.Before(time.Now().AddDate(0,0,-1)) {
 		cfg.daily = true
 	}
+	if cfg.CurrentUserUUID == uuid.Nil {
+		cfg.uuid = true
+		return ErrUUID
+	}
 	cfg.valid = true
 	return nil
 }
@@ -127,13 +131,13 @@ func (cfg *Config) Validate() error {
 // Set the username of the current user in memory and then write to disk
 func (cfg *Config) SetUser(user database.User) error {
 	cfg.CurrentUserName = user.Name
-	cfg.currentUserUUID = user.ID
+	cfg.CurrentUserUUID = user.ID
 	return write(cfg)
 }
 
 // Get the current usermame and id from memory
 func (cfg *Config) GetUser() (string, uuid.UUID) {
-	return cfg.CurrentUserName, cfg.currentUserUUID
+	return cfg.CurrentUserName, cfg.CurrentUserUUID
 }
 
 // Get the current username from memory
@@ -143,7 +147,7 @@ func (cfg *Config) GetUserName() (string) {
 
 // Get the current user ID from memory
 func (cfg *Config) GetUserID() (uuid.UUID) {
-	return cfg.currentUserUUID
+	return cfg.CurrentUserUUID
 }
 
 // Set the last opened timestamp to now the write to disk

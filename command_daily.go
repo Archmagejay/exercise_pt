@@ -18,6 +18,7 @@ func commandDaily(s *state, _ ...string) error {
 	}
 
 	if latest, err := s.db.GetLatestEntryTimestampForUser(context.Background(), s.cfg.GetUserID()); err != nil {
+		s.Log(LogError, "Failed to get latest entry timestamp")
 		return err
 	} else if latest.Before(time.Now().Add(-time.Duration(12) * time.Hour)) {
 		return dailyEntry(s)
@@ -44,6 +45,7 @@ func dailyEntry(s *state) error {
 		// TODO: Add option for number of days prior as valid input
 		fmt.Print("What day is it for? <dd/mm/yy> > ")
 	DATE:
+		// TODO: Sanity check
 		entry_date_string := cmdInput(s)
 		if cmdCancel(entry_date_string) {
 			return nil
@@ -62,8 +64,12 @@ func dailyEntry(s *state) error {
 	// Check if the weekly data is due
 WEEKLY:
 	if weekly, err := s.db.GetLatestWeeklyDataTimestampForUser(context.Background(), s.cfg.GetUserID()); err != nil && err != sql.ErrNoRows {
+		s.Log(LogError, "Failed to get latest weekly entry timestamp for user")
 		return err
-	} else if weekly.Before(time.Now().AddDate(0, 0, -7)) || err == sql.ErrNoRows {
+	} else if weekly.Before(time.Now().AddDate(0, 0, -14)) || err == sql.ErrNoRows {
+		if err != nil {
+			s.Log(LogWarning, "No rows found with weeky data for user")
+		}
 		// Ask for the weekly data
 		// TODO: Sanity check inputs
 		fmt.Print("Please enter your weight in kg using the format <###.##>: ")
@@ -111,26 +117,26 @@ PARK_RUN:
 	cardioStr := "\tTreadmill"
 	fmt.Print("Did you use the treadmill? (y/n) > ")
 	if cmdConfirmation(s) {
-		entry.CardioType = false
+		entry.CardioType = sql.NullBool{Bool: false, Valid: true}
 	} else {
 		fmt.Print("The bike? (y/n) > ")
 		if cmdConfirmation(s) {
-			entry.CardioType = true
+			entry.CardioType = sql.NullBool{Bool: false, Valid: true}
 		} else {
 			fmt.Print("No cardio then? (y/n) > ")
 			if cmdConfirmation(s) {
-				entry.CardioType = false
-				entry.Cardio = ""
+				entry.CardioType = sql.NullBool{Bool: false, Valid: false}
+				entry.Cardio = "0"
 				goto PLANK
 			}
 		}
 	}
 	fmt.Print("What distance in kilometers did you manage to achieve? <##.##>")
 	entry.Cardio = cmdInput(s)
-	if entry.CardioType{
+	if entry.CardioType.Bool {
 		cardioStr = "\tBike"
 	}
-	fmt.Printf("Are these fields correct?\n\tCardio Type: %s\n\tCardio duration: %s", cardioStr, entry.Cardio)
+	fmt.Printf("Are these fields correct?\n\tCardio Type: %s\n\tCardio duration: %s\ndaily > ", cardioStr, entry.Cardio)
 
 	if !cmdConfirmation(s) {
 		goto CARDIO
@@ -146,6 +152,9 @@ PLANK:
 	}
 	if strings.Count(entry_plank, ":") != 0 {
 		entry_plank = strings.ReplaceAll(entry_plank, ":", "m") + "s"
+	} else if !strings.HasSuffix(entry_plank, "s") {
+		fmt.Println("Please use one of these formats: <mm:ss> | <##m##s>")
+		goto PLANK
 	}
 	entry.PlankDur = sql.NullString{
 		String: entry_plank,
@@ -162,13 +171,13 @@ WEIGHTS:
 	prev_plate_count, err := s.db.GetLatestPlateCountForUser(context.Background(), s.cfg.GetUserID())
 	weight_no_prior := false
 	if err != nil && err != sql.ErrNoRows {
+		s.Log(LogError, "Failed to get the latest plate count for user")
 		return err
 	} else if err == sql.ErrNoRows {
 		fmt.Println("No prior entry found please enter plate count")
 		prev_plate_count = make([]int32, 7)
 		weight_no_prior = true
 	} else {
-
 		fmt.Print("Have you changed any of the plate counts for your exercise? (y/n)\ndaily > ")
 	}
 	entry.PlateCount = prev_plate_count
@@ -226,7 +235,12 @@ WEIGHTS:
 		goto WEIGHTS
 	}
 
-	s.db.AddEntry(context.Background(), entry)
+	dbentry, err := s.db.AddEntry(context.Background(), entry)
+	if err != nil {
+		s.Log(LogError,	fmt.Sprint(dbentry))
+		s.Log(LogError, fmt.Sprint(entry))
+		return err
+	}
 	fmt.Println("New entry added to database!")
 
 	// Check if any new goals have been achieved
