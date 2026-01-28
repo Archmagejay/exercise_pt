@@ -109,8 +109,8 @@ func altCommands() map[string]string {
 }
 
 func cmdConfirmation(s *state) bool {
-	s.in.Scan()
-	if s.in.Text() == "y" || s.in.Text() == "Y" {
+	in := cmdInput(s)
+	if in == "y" || in == "Y" {
 		return true
 	}
 	return false
@@ -127,4 +127,9 @@ func cmdCancel(s string) bool {
 
 func congratulate(database.Goal) {
 	fmt.Println("Not yet implemented")
+}
+
+func sanityCheckInput(in string) bool {
+
+	return false
 }

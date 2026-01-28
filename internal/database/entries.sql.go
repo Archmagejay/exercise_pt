@@ -40,8 +40,8 @@ type AddEntryParams struct {
 	CardioType sql.NullBool   `json:"cardio_type"`
 	PlateCount []int32        `json:"plate_count"`
 	PlankDur   sql.NullString `json:"plank_dur"`
-	Weight     string         `json:"weight"`
-	Waist      string         `json:"waist"`
+	Weight     sql.NullString `json:"weight"`
+	Waist      sql.NullString `json:"waist"`
 	ParkRun    sql.NullString `json:"park_run"`
 }
 

@@ -73,28 +73,32 @@ WEEKLY:
 		// Ask for the weekly data
 		// TODO: Sanity check inputs
 		fmt.Print("Please enter your weight in kg using the format <###.##>: ")
-		entry.Weight = cmdInput(s)
-		if cmdCancel(entry.Weight) {
+		entry.Weight.String = cmdInput(s)
+		if cmdCancel(entry.Weight.String) {
 			return nil
 		}
+		entry.Weight.Valid = true
 		fmt.Print("Please enter your waist measurement in cm: ")
-		entry.Waist = cmdInput(s)
-		if cmdCancel(entry.Waist) {
+		entry.Waist.String = cmdInput(s)
+		if cmdCancel(entry.Waist.String) {
 			return nil
 		}
+		entry.Waist.Valid = true
 		// Confirm correct data entry
-		fmt.Printf("Are these fields correct? (y/n)\n\tWeight: %s kg\n\tWaist: %s cm\ndaily > ", entry.Weight, entry.Waist)
+		fmt.Printf("Are these fields correct? (y/n)\n\tWeight: %s kg\n\tWaist: %s cm\ndaily > ", entry.Weight.String, entry.Waist.String)
 		if !cmdConfirmation(s) {
 			goto WEEKLY
 		}
+	} else {
+
 	}
 
 	// If a saturday ask if a park run was done
 PARK_RUN:
 	if entry.Date.Weekday() == time.Saturday {
-		fmt.Println("Did you complete a park run today? (y/n) > ")
+		fmt.Print("Did you complete a park run today? (y/n) > ")
 		if cmdConfirmation(s) {
-			fmt.Println("What time did you achieve? <mm:ss> | <##m##s")
+			fmt.Println("What time did you achieve? <mm:ss> | <##m##s>")
 			// TODO: Sanity check input
 			park_run_string := cmdInput(s)
 			if strings.Count(park_run_string, ":") != 0 {
@@ -105,7 +109,7 @@ PARK_RUN:
 				Valid:  true,
 			}
 			// Confirm correct data entry
-			fmt.Printf("Are these fields correct?\n\tPark Run duration: %s", entry.ParkRun.String)
+			fmt.Printf("Are these fields correct? (y/n)\n\tPark Run duration: %s\n", entry.ParkRun.String)
 			if !cmdConfirmation(s) {
 				goto PARK_RUN
 			}
@@ -121,7 +125,7 @@ CARDIO:
 	} else {
 		fmt.Print("The bike? (y/n) > ")
 		if cmdConfirmation(s) {
-			entry.CardioType = sql.NullBool{Bool: false, Valid: true}
+			entry.CardioType = sql.NullBool{Bool: true, Valid: true}
 		} else {
 			fmt.Print("No cardio then? (y/n) > ")
 			if cmdConfirmation(s) {
@@ -136,7 +140,7 @@ CARDIO:
 	if entry.CardioType.Bool {
 		cardioStr = "\tBike"
 	}
-	fmt.Printf("Are these fields correct?\n\tCardio Type: %s\n\tCardio duration: %s\ndaily > ", cardioStr, entry.Cardio)
+	fmt.Printf("Are these fields correct? (y/n)\n\tCardio Type: %s\n\tCardio duration: %s\ndaily > ", cardioStr, entry.Cardio)
 
 	if !cmdConfirmation(s) {
 		goto CARDIO
@@ -161,7 +165,7 @@ PLANK:
 		Valid:  true,
 	}
 	// Confirm correct data entry
-	fmt.Printf("Are these fields correct?\n\tPlank Duration: %s \ndaily > ", entry.PlankDur.String)
+	fmt.Printf("Are these fields correct? (y/n)\n\tPlank Duration: %s \ndaily > ", entry.PlankDur.String)
 	if !cmdConfirmation(s) {
 		goto PLANK
 	}
@@ -235,10 +239,9 @@ WEIGHTS:
 		goto WEIGHTS
 	}
 
-	dbentry, err := s.db.AddEntry(context.Background(), entry)
+	_, err = s.db.AddEntry(context.Background(), entry)
 	if err != nil {
-		s.Log(LogError, fmt.Sprint(dbentry))
-		s.Log(LogError, fmt.Sprint(entry))
+		s.Log(LogError, "Attemped entry: " + fmt.Sprint(entry))
 		return err
 	}
 	fmt.Println("New entry added to database!")

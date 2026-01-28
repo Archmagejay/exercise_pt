@@ -7,7 +7,7 @@ import (
 
 // Reusable text snippets
 const (
-	version = "0.91"
+	version = "0.9.1"
 	seperator = "====================\n"
 	welcome   = "Welcome to the Exercise Tracker! V" + version + "\n"
 	prefix    = "> "
